@@ -22,7 +22,7 @@ public struct ExtractionApplier {
             // Coarse mapping: jeder ersetzte Fakt zeigt auf den ersten neuen Fakt dieses Aufrufs
             // (deckt den 1:1-Update-Fall exakt ab; Verfeinerung nur wenn die Eval es zeigt).
             for fact in try context.fetch(FetchDescriptor<Fact>()) where extraction.supersedes.contains(fact.id) {
-                fact.supersededBy = replacement
+                fact.supersededByID = replacement.id
             }
         }
         return extraction.aliasSuggestions

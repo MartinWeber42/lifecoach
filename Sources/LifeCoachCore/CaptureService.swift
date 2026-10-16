@@ -1,6 +1,6 @@
 import Foundation
 
-/// Classifies raw text and creates a new (not yet persisted) Entry.
+/// Classifies raw text: note/reminder become a new (not yet persisted) Entry, questions are answered.
 /// Falls back to `.note` on classifier error or timeout (CONCEPT: Flow A, Fallback).
 public struct CaptureService: Sendable {
     public let classifier: (any Classifier)?
@@ -11,28 +11,37 @@ public struct CaptureService: Sendable {
         self.timeoutSeconds = timeoutSeconds
     }
 
-    /// True when no classifier is configured — user sets kind manually (CONCEPT: manueller Modus).
+    /// True when no classifier configured — user sets kind manually (CONCEPT: manueller Modus).
     public var isManualMode: Bool { classifier == nil }
 
     @MainActor
-    public func classify(_ rawText: String, now: Date = .now, timeZone: TimeZone = .current) async -> Entry {
-        // Geheimnis-Filter vor jedem KI-Aufruf (MEMORY.md, Vorstufe): Treffer = private note, kein Modell.
+    public func capture(_ rawText: String, now: Date = .now, timeZone: TimeZone = .current) async -> CaptureOutcome {
+        // Geheimnis-Filter vor jedem KI-Aufruf (MEMORY.md, Vorstufe): Treffer private note, kein Modell.
         if SecretFilter.isSecret(rawText) {
-            return Entry(rawText: rawText, kind: .note, createdAt: now, isPrivate: true)
+            return .entry(Entry(rawText: rawText, kind: .note, createdAt: now, isPrivate: true))
         }
         guard let classifier else {
-            return Entry(rawText: rawText, kind: .note, createdAt: now)
+            return .entry(Entry(rawText: rawText, kind: .note, createdAt: now))
         }
         do {
             let c: Classification = try await withTimeout(seconds: timeoutSeconds) {
                 try await classifier.classify(rawText, now: now, timeZone: timeZone)
             }
-            let kind: Kind = c.kind == .question ? .note : c.kind
-            return Entry(rawText: rawText, text: c.text, kind: kind, dueAt: c.due, createdAt: now, processedVersion: 1)
+            if c.kind == .question {
+                // Frage wird beantwortet, nie gespeichert (ROADMAP M2: questionIsNotPersisted)
+                return .question(text: c.text.isEmpty ? rawText : c.text)
+            }
+            return .entry(Entry(rawText: rawText, text: c.text, kind: c.kind, dueAt: c.due, createdAt: now, processedVersion: 1))
         } catch {
-            return Entry(rawText: rawText, kind: .note, createdAt: now)
+            return .entry(Entry(rawText: rawText, kind: .note, createdAt: now))
         }
     }
+}
+
+/// Ergebnis einer Eingabe: speichern oder beantworten (ROADMAP M2, CONCEPT Flows A/C).
+public enum CaptureOutcome {
+    case entry(Entry)
+    case question(text: String)
 }
 
 private struct TimeoutError: Error {}

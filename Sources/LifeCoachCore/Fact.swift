@@ -10,8 +10,9 @@ public final class Fact {
     public var statement: String
     /// Bi-temporal: wann es gilt (falls genannt); entry.createdAt = wann es gespeichert wurde.
     public var eventDate: Date?
-    /// Ersetzen statt löschen (MEMORY.md): wird vom Abgleich gesetzt.
-    public var supersededBy: Fact?
+    /// Ersetzen statt löschen (MEMORY.md): wird vom Abgleich gesetzt. Als ID statt Relationship —
+    /// SwiftData paart self-referencing Relationships automatisch (falsche Inverse).
+    public var supersededByID: UUID?
     public var people: [Person] = []
     /// Quelle (inverse über Entry.facts, cascade delete).
     public var entry: Entry?

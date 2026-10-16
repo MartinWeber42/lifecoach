@@ -33,7 +33,9 @@ struct SecretFilterTests {
         let service = CaptureService(classifier: CountingClassifier(
             .success(Classification(kind: .reminder, text: "sonnenblume42", due: nil)), counter))
 
-        let entry = await service.classify("wlan pw bei den eltern ist sonnenblume42")
+        guard case .entry(let entry) = await service.capture("wlan pw bei den eltern ist sonnenblume42") else {
+            Issue.record("expected entry"); return
+        }
 
         #expect(entry.isPrivate)
         #expect(entry.kind == .note)
@@ -56,7 +58,9 @@ struct SecretFilterTests {
         let service = CaptureService(classifier: CountingClassifier(
             .success(Classification(kind: .note, text: "schwanger", due: nil)), counter))
 
-        let entry = await service.classify("anna ist schwanger, noch geheim!")
+        guard case .entry(let entry) = await service.capture("anna ist schwanger, noch geheim!") else {
+            Issue.record("expected entry"); return
+        }
 
         #expect(entry.isPrivate)
         #expect(counter.count == 0)

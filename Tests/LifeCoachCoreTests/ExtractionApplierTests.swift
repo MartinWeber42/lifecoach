@@ -28,7 +28,8 @@ struct ExtractionApplierTests {
         let facts = try context.fetch(FetchDescriptor<Fact>())
         #expect(facts.count == 2) // nie gelöscht
         let superseded = facts.first { $0.id == old.id }
-        #expect(superseded?.supersededBy?.statement == "Lisa wünscht sich ein Buch.")
+        let replacement = facts.first { $0.statement.contains("Buch") }
+        #expect(superseded?.supersededByID == replacement?.id)
         #expect(suggestions.isEmpty)
     }
 

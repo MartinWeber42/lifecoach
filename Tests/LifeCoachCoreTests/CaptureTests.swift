@@ -30,7 +30,9 @@ struct CaptureTests {
         let slow = FakeClassifier(.success(Classification(kind: .reminder, text: "test", due: nil)), delay: 10)
         let service = CaptureService(classifier: slow, timeoutSeconds: 0.05)
 
-        let entry = await service.classify("zu langsam")
+        guard case .entry(let entry) = await service.capture("zu langsam") else {
+            Issue.record("expected entry"); return
+        }
 
         #expect(entry.kind == .note)
     }
@@ -45,7 +47,9 @@ struct CaptureTests {
         let classifier = FakeClassifier(.success(Classification(kind: .note, text: "Keramikvase", due: nil)))
         let service = CaptureService(classifier: classifier)
 
-        let entry = await service.classify("Lisa wünscht sich eine Keramikvase")
+        guard case .entry(let entry) = await service.capture("Lisa wünscht sich eine Keramikvase") else {
+            Issue.record("expected entry"); return
+        }
         context.insert(entry)
         try context.save()
 
@@ -61,7 +65,20 @@ struct CaptureTests {
         let service = CaptureService(classifier: nil)
         #expect(service.isManualMode)
 
-        let entry = await service.classify("Milch kaufen")
+        guard case .entry(let entry) = await service.capture("Milch kaufen") else {
+            Issue.record("expected entry"); return
+        }
         #expect(entry.kind == .note)
+    }
+
+    /// question is answered, never persisted (ROADMAP M2: questionIsNotPersisted).
+    @Test func questionIsNotPersisted() async {
+        let service = CaptureService(classifier: FakeClassifier(
+            .success(Classification(kind: .question, text: "was mag lisa", due: nil))))
+
+        guard case .question(let q) = await service.capture("was mag lisa für blumen") else {
+            Issue.record("expected question"); return
+        }
+        #expect(q == "was mag lisa")
     }
 }

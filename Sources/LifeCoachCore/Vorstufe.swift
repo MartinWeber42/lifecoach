@@ -22,9 +22,10 @@ public enum SecretFilter {
 /// Keyword lookup over rawText (MEMORY.md: private Treffer per Stichwort, ohne Modell).
 /// M2b ersetzt das durch den vollständigen Retriever (Ranking, Personen, Zeitraum).
 public enum KeywordSearch {
-    /// True when every query token appears in the text ("wlan pw?" → rawText-Overlap).
+    /// True when every meaningful query token (Stoppwörter raus) appears in the text
+    /// ("wie war das wlan pw" findet den Eintrag).
     public static func matches(_ text: String, query: String) -> Bool {
-        let needles = Set(tokenize(query))
+        let needles = Set(tokenize(query)).subtracting(Retriever.stopwords)
         guard !needles.isEmpty else { return false }
         return needles.isSubset(of: Set(tokenize(text)))
     }
