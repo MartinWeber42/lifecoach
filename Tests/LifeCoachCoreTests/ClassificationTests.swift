@@ -32,7 +32,8 @@ struct DueDateTests {
 struct HaikuClassifierTests {
     @Test func requestAsksHaikuForSchemaOutput() throws {
         let request = try HaikuClassifier(apiKey: "test-key").request(for: "morgen 10 uhr mama anrufen", now: fridayAfternoon, timeZone: berlin)
-        let body = try #require(JSONSerialization.jsonObject(with: #require(request.httpBody)) as? [String: Any])
+        let httpBody = try #require(request.httpBody)
+        let body = try #require(JSONSerialization.jsonObject(with: httpBody) as? [String: Any])
         let format = (body["output_config"] as? [String: Any])?["format"] as? [String: Any]
         #expect(body["model"] as? String == "claude-haiku-5-5")
         #expect(format?["type"] as? String == "json_schema")
