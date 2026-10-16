@@ -7,10 +7,17 @@ struct LiveCoachApp: App {
     @State private var settings = AppSettings()
 
     static let sharedModelContainer: ModelContainer = {
-        let schema = Schema([Entry.self])
-        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        let schema = Schema([Entry.self, Fact.self, Person.self])
+        let storeURL = URL.applicationSupportDirectory.appending(path: "LifeCoach.store")
+        let config = ModelConfiguration(schema: schema, url: storeURL)
         do {
-            return try ModelContainer(for: schema, configurations: [config])
+            let container = try ModelContainer(for: schema, configurations: [config])
+            // NSFileProtectionComplete (CONCEPT Datenschutz: Store nur bei entriegeltem Gerät)
+            for suffix in ["", "-wal", "-shm"] {
+                let file = URL(fileURLWithPath: storeURL.path + suffix)
+                try? (file as NSURL).setResourceValue(URLFileProtection.complete, forKey: .fileProtectionKey)
+            }
+            return container
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }

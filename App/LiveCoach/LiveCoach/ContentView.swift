@@ -19,13 +19,18 @@ struct ContentView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 if let queryText { queryBubble }
-            if !pendingAliases.isEmpty { aliasBanner }
-                entryList
+                if !pendingAliases.isEmpty { aliasBanner }
+                if entries.isEmpty { emptyState } else { entryList }
                 Divider()
                 inputBar
             }
             .navigationTitle("LifeCoach")
             .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    ShareLink(item: exportJSON(), preview: SharePreview("LifeCoach-Gedächtnis")) {
+                        Image(systemName: "square.and.arrow.up")
+                    }
+                }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button { showSettings = true } label: {
                         Image(systemName: "gear")
@@ -135,6 +140,28 @@ struct ContentView: View {
             try? context.save()
         }
         pendingAliases.removeAll { $0 == suggestion }
+    }
+
+    /// Leerer Zustand mit 2–3 Beispiel-Eingaben als Hilfe (ROADMAP M4).
+    private var emptyState: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Tipp einfach rein — ich sortiere.")
+                .font(.headline)
+            Label("„morgen 10 uhr mama anrufen“", systemImage: "clock")
+            Label("„lisa wünscht sich eine keramikvase“", systemImage: "note.text")
+            Label("„was wünscht sich meine freundin?“", systemImage: "questionmark.bubble")
+        }
+        .font(.subheadline)
+        .foregroundStyle(.secondary)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+    }
+
+    /// JSON-Export (CONCEPT Datenschutz: „Handy weg = Gehirn weg“ — Share-Sheet).
+    private func exportJSON() -> URL {
+        let url = FileManager.default.temporaryDirectory.appending(path: "LifeCoach-Export.json")
+        try? EntryExport.jsonData(entries).write(to: url)
+        return url
     }
 
     /// Nachverarbeitung beim App-Start (MEMORY.md Verarbeitung): offline Gefallenes aus rawText neu.
