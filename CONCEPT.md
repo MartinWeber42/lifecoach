@@ -122,6 +122,8 @@ Regeln:
 
 ## Datenmodell
 
+> **Ersetzt durch `MEMORY.md`** (drei Schichten: Entry → Fact → Person). Der Stand unten bleibt als Begründung der Abweichungen vom Bot.
+
 ```
 Entry (@Model)
   rawText: String       // Originaleingabe, unverändert

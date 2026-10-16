@@ -68,6 +68,8 @@ Abfrage-Eval (`answering.json`) steht noch aus → M2.
 
 ## M2 — Abfragen (Slice: fragen → belegte Antwort)
 
+> Aufgeteilt in **M2a Gedächtnis** (Extraktion, Fakten, Personen/Aliase) und **M2b Abfragen** (Retriever, Answerer) — Details und Reihenfolge in `MEMORY.md`.
+
 *Vorgezogen, weil es der Kern der User-Story ist.*
 
 - `question` wird erkannt und **nicht** gespeichert, sondern beantwortet.

@@ -20,7 +20,7 @@ Adding an API does not change this harness's model or subscription.
 1. TDD: Test zuerst (Swift Testing), dann Code. Vertikale Slices, kein Horizontal-Slicing.
 2. Ponytail-Prinzip: YAGNI, Stdlib vor Custom-Libraries, kürzest mögliche Lösung. Jede Zeile muss sein.
 3. Ziel ist on-device-Inference (Apple Foundation Models). **Brücke (bewusst, befristet):** bis ein Apple-Intelligence-fähiges iPhone da ist, läuft das LLM über Claude Haiku (`claude-haiku-5-5`) per API — ausschließlich hinter den Protokollen `Classifier`/`Answerer`, damit der Wechsel auf on-device nur eine Implementierung tauscht. Kein anderer Cloud-Dienst, kein eigener Server. Wann die Brücke endet, entscheidet der Nutzer anhand der M0-Messwerte.
-4. Konzept und Domänen-Sprache stehen in `CONCEPT.md` — vor jeder Aufgabe lesen, Testnamen an der Domäne orientieren.
+4. Konzept und Domänen-Sprache stehen in `CONCEPT.md`, die Gedächtnis-Architektur in `MEMORY.md` — vor jeder Aufgabe lesen, Testnamen an der Domäne orientieren.
 5. Klassifizierungs-Schema (note/reminder/question) ist die bewiesene Kernlogik — nicht ohne Absprache ändern.
 6. Deutsche UI-Sprache, Code und Identifier auf Englisch.
 
