@@ -29,3 +29,25 @@ public enum KeywordSearch {
         return needles.isSubset(of: Set(tokenize(text)))
     }
 }
+
+/// Personen-Vorerkennung (MEMORY.md, Vorstufe 2): bekannte Namen + bestätigte Aliase im Text finden.
+/// Ein Stück Code, zwei Einsätze: Extraktions-Kontext und Frage-Kandidaten (Abfragen, Schritt 1).
+public enum PersonDetection {
+    /// Persons whose name or confirmed alias appears in the text (word-exact, case-insensitive).
+    public static func detect(_ text: String, in people: [Person]) -> [Person] {
+        let tokens = tokenize(text)
+        return people.filter { person in
+            ([person.name] + person.aliases).contains { identifier in
+                containsPhrase(tokens, phrase: tokenize(identifier))
+            }
+        }
+    }
+
+    /// Consecutive token-subsequence match ("meine freundin" ⊂ [meine, freundin, mag, rosen]).
+    private static func containsPhrase(_ tokens: [String], phrase: [String]) -> Bool {
+        guard !phrase.isEmpty, tokens.count >= phrase.count else { return false }
+        return (0 ... tokens.count - phrase.count).contains { start in
+            Array(tokens[start ..< start + phrase.count]) == phrase
+        }
+    }
+}
