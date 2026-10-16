@@ -35,8 +35,10 @@ public enum ClassificationPrompt {
         due nur bei reminder, sonst null:
         - Format: lokale Zeit ohne Zeitzone, JJJJ-MM-TTTHH:MM:SS, z. B. 2026-01-05T10:00:00.
         - Wochentage und „morgen"/„übermorgen" immer aus der Liste oben ablesen, nicht selbst rechnen.
+        - Konkretes Datum („am 3.11.", „20.12."), auch außerhalb der Liste: direkt übernehmen; ohne Jahr das nächste Vorkommen.
         - „in 30 min", „in 2 stunden": von der aktuellen Uhrzeit aus rechnen.
-        - Keine Uhrzeit genannt: 09:00.
+        - „in 3 tagen", „in 2 wochen": Datum ausrechnen, Uhrzeit 09:00.
+        - Sonst keine Uhrzeit genannt: 09:00.
         - Kein Zeitpunkt ableitbar („irgendwann", „muss dran denken"): null.
 
         text ist immer die Kernaussage, knapp.

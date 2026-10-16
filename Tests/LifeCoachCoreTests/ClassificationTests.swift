@@ -44,6 +44,7 @@ struct HaikuClassifierTests {
         #expect(body["model"] as? String == "claude-haiku-5-5")
         #expect(format?["type"] as? String == "json_schema")
         #expect(request.value(forHTTPHeaderField: "x-api-key") == "test-key")
+        #expect((body["thinking"] as? [String: Any])?["type"] as? String == "disabled")
     }
 
     @Test func reminderIsParsedPastThinkingBlock() throws {

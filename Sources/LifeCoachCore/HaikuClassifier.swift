@@ -36,7 +36,8 @@ public struct HaikuClassifier: Classifier {
         request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
         let body: [String: Any] = [
             "model": Self.model,
-            "max_tokens": 2048,
+            "max_tokens": 512,
+            "thinking": ["type": "disabled"],
             "system": ClassificationPrompt.instructions(now: now, timeZone: timeZone),
             "messages": [["role": "user", "content": input]],
             "output_config": [
