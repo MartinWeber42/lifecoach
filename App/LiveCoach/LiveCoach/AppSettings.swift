@@ -19,6 +19,10 @@ final class AppSettings {
         apiKey.isEmpty ? nil : HaikuClassifier(apiKey: apiKey)
     }
 
+    var extractor: (any Extractor)? {
+        apiKey.isEmpty ? nil : HaikuExtractor(apiKey: apiKey)
+    }
+
     var isManualMode: Bool { classifier == nil }
 }
 
