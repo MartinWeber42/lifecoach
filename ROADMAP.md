@@ -52,7 +52,7 @@ Abfrage-Eval (`answering.json`) steht noch aus → M2.
 
 ---
 
-## M1 — Aufnehmen & Liste (Slice: tippen → sehen)
+## M1 — Aufnehmen & Liste (Slice: tippen → sehen) — ✅ implementiert (16.10.2026)
 
 - `Entry`-Modell (SwiftData) laut Konzept.
 - Ein Eingabefeld unten, chronologische Liste oben (neueste unten, Chat-artig).
