@@ -16,6 +16,10 @@ public struct CaptureService: Sendable {
 
     @MainActor
     public func classify(_ rawText: String, now: Date = .now, timeZone: TimeZone = .current) async -> Entry {
+        // Geheimnis-Filter vor jedem KI-Aufruf (MEMORY.md, Vorstufe): Treffer = private note, kein Modell.
+        if SecretFilter.isSecret(rawText) {
+            return Entry(rawText: rawText, kind: .note, createdAt: now, isPrivate: true)
+        }
         guard let classifier else {
             return Entry(rawText: rawText, kind: .note, createdAt: now)
         }
@@ -24,7 +28,7 @@ public struct CaptureService: Sendable {
                 try await classifier.classify(rawText, now: now, timeZone: timeZone)
             }
             let kind: Kind = c.kind == .question ? .note : c.kind
-            return Entry(rawText: rawText, text: c.text, kind: kind, dueAt: c.due, createdAt: now)
+            return Entry(rawText: rawText, text: c.text, kind: kind, dueAt: c.due, createdAt: now, processedVersion: 1)
         } catch {
             return Entry(rawText: rawText, kind: .note, createdAt: now)
         }

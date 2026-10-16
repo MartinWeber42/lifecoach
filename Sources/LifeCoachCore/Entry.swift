@@ -16,13 +16,21 @@ public final class Entry {
     /// Set when the user marks a reminder done.
     public var doneAt: Date?
 
+    /// Processing version that ran on this entry (1 = Klassifizierung). `nil` = noch nicht verarbeitet
+    /// (offline/Fallback); die Nachverarbeitung (M2b) überspringt `isPrivate`-Einträge.
+    public var processedVersion: Int?
+    /// Geheimnis-Filter (MEMORY.md, Vorstufe): nie an ein Modell, Wiederfinden nur per Stichwort über `rawText`.
+    public var isPrivate: Bool = false
+
     public init(
         rawText: String,
         text: String = "",
         kind: Kind = .note,
         dueAt: Date? = nil,
         createdAt: Date = .now,
-        doneAt: Date? = nil
+        doneAt: Date? = nil,
+        isPrivate: Bool = false,
+        processedVersion: Int? = nil
     ) {
         self.rawText = rawText
         self.text = text
@@ -30,5 +38,7 @@ public final class Entry {
         self.dueAt = dueAt
         self.createdAt = createdAt
         self.doneAt = doneAt
+        self.isPrivate = isPrivate
+        self.processedVersion = processedVersion
     }
 }
