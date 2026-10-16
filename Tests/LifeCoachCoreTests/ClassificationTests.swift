@@ -8,8 +8,14 @@ let fridayAfternoon = DueDate.parse("2026-10-16T14:30:00+02:00", timeZone: berli
 struct ClassificationPromptTests {
     @Test func promptStatesWeekdayAndCurrentTime() {
         let prompt = ClassificationPrompt.instructions(now: fridayAfternoon, timeZone: berlin)
-        #expect(prompt.contains("Freitag"))
-        #expect(prompt.contains("2026-10-16T14:30:00+02:00"))
+        #expect(prompt.contains("Jetzt: Freitag, 2026-10-16, 14:30 Uhr"))
+    }
+
+    @Test func promptListsUpcomingWeekdaysSoModelDoesNotCount() {
+        let prompt = ClassificationPrompt.instructions(now: fridayAfternoon, timeZone: berlin)
+        #expect(prompt.contains("Sonntag, 2026-10-18 (übermorgen)"))
+        #expect(prompt.contains("Dienstag, 2026-10-20"))
+        #expect(prompt.contains("Freitag, 2026-10-30"))
     }
 }
 

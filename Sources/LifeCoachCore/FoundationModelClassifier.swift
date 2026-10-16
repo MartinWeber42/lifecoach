@@ -31,7 +31,7 @@ public struct FoundationModelClassifier: Classifier {
         let kind: GeneratedKind
         @Guide(description: "Kernaussage, knapp")
         let text: String
-        @Guide(description: "ISO-8601-Zeitpunkt mit Offset, nur bei reminder")
+        @Guide(description: "Lokale Zeit JJJJ-MM-TTTHH:MM:SS ohne Zeitzone, nur bei reminder")
         let due: String?
     }
 

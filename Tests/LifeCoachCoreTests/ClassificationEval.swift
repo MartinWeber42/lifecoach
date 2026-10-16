@@ -25,8 +25,11 @@ struct ClassificationEval {
         let reminders = file.cases.filter { $0.kind == .reminder }.count
         for testCase in file.cases {
             let start = ContinuousClock.now
-            guard let result = try? await classifier.classify(testCase.input, now: now, timeZone: timeZone) else {
-                print("FEHLER \(testCase.input)")
+            let result: Classification
+            do {
+                result = try await classifier.classify(testCase.input, now: now, timeZone: timeZone)
+            } catch {
+                print("FEHLER \(testCase.input): \(error)")
                 continue
             }
             durations.append(ContinuousClock.now - start)
