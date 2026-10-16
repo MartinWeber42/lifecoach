@@ -39,6 +39,7 @@ public struct Extraction: Equatable, Sendable {
 
 /// Extraktion als eigener Aufruf hinter einem Protokoll (wie Classifier/Answerer) —
 /// Haiku jetzt, on-device später; nur der Transport tauscht.
+@MainActor
 public protocol Extractor: Sendable {
-    func extract(_ input: String, facts: [Fact], people: [Person]) async throws -> Extraction
+    func extract(_ input: String, facts: [Fact], people: [Person], now: Date, timeZone: TimeZone) async throws -> Extraction
 }

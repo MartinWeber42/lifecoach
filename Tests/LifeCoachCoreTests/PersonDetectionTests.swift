@@ -33,4 +33,15 @@ struct PersonDetectionTests {
 
         #expect(detected.map(\.name) == ["Lisa", "Tom"])
     }
+
+    /// Confirming an alias (M2a-Banner) appends it, without duplicates (Groß/Klein egal).
+    @Test func confirmingAliasAddsItToPerson() {
+        let lisa = Person(name: "Lisa")
+
+        lisa.confirm("meine Freundin")
+
+        #expect(lisa.aliases == ["meine Freundin"])
+        lisa.confirm("Meine Freundin")
+        #expect(lisa.aliases == ["meine Freundin"]) // kein Duplikat
+    }
 }
