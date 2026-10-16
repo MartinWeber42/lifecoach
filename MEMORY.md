@@ -25,13 +25,42 @@ Die Original-Story scheitert mit dem jetzigen Konzept: Gespeichert wird „**Lis
 ## Architektur: drei Schichten
 
 ```
-Eingabe ──► Entry (Rohtext, unveränderlich) ──► Verarbeitung (LLM, Hintergrund)
+Eingabe ──► Entry (Rohtext, unveränderlich) ──► Vorstufe (lokal, ohne KI)
+                                                   ├─ Geheimnis-Filter → privat: bleibt auf dem Gerät, Ende
+                                                   └─ Personen-Vorerkennung → bekannte Personen als Kontext
+                                               ──► Verarbeitung (LLM, Hintergrund)
                                                    ├─ Klassifizierung (bestehendes Schema)
                                                    ├─ Extraktion → Fact[] + Personen + Aliase
                                                    └─ Abgleich → ältere Fakten als „ersetzt" markieren
 
 Frage ──► Kandidaten finden (Personen/Aliase, Stichworte, Zeitraum) ──► LLM antwortet nur daraus ──► Antwort + Quellen
 ```
+
+### Vorstufe — lokal, ohne KI (entschieden 16.10.2026)
+
+Läuft vor jedem KI-Aufruf, deterministisch, vollständig per Unit-Test abgedeckt. Sortiert **nicht** (Haiku sortiert 98 % richtig — eine Regel davor kann nur Fehler hinzufügen), sondern schützt Daten und gibt der KI Kontext.
+
+**1. Geheimnis-Filter** — Einträge mit einem dieser Wörter (Wortgrenze, Groß/Klein egal) gehen **nie** an ein Modell:
+`passwort`, `kennwort`, `pw`, `pin`, `puk`, `tan`, `code`, `geheimzahl`, `zugangsdaten`, `login`, `iban`, `geheim`
+- Gespeichert als `note` mit `isPrivate = true`, keine Fakten, keine Klassifizierung.
+- Wiederfinden nur per Stichwort über `rawText` („wie war das wlan pw" findet „wlan pw bei den eltern …"). Bei privaten Treffern zeigt die App den Eintrag selbst an, ohne KI-Antwort.
+- Fehlalarme („code review morgen") kosten nur die Sortierung: Der Eintrag wird Notiz statt Erinnerung. Lieber zu vorsichtig als ein Passwort bei Anthropic.
+- Gilt ab **M1**, weil schon die Klassifizierung Text an Haiku schickt.
+
+**2. Personen-Vorerkennung** — bekannte Namen und bestätigte Aliase per Textvergleich im Rohtext finden und dem Extraktions-Aufruf mitgeben:
+`Bekannte Personen: Lisa (= meine Freundin), Tom, Jonas (Nachbar)`
+- Hält Namen einheitlich: Die KI ordnet „meine freundin" der vorhandenen Person Lisa zu, statt eine neue anzulegen.
+- Dieselbe Funktion erkennt beim Fragen die Personen (siehe *Abfragen*, Schritt 1) — ein Stück Code, zwei Einsätze.
+
+**3. Fragen-Abkürzung** — Eingabe endet auf „?" → direkt beantworten, ohne Klassifizierungs-Aufruf. **Zurückgestellt**, bis die Wartezeit bei Fragen stört.
+
+**Unit-Tests (Swift Testing, vor dem Code):**
+- `entryWithPasswordStaysOnDevice` — „wlan pw bei den eltern ist sonnenblume42" → `isPrivate`, kein `Classifier`-Aufruf
+- `secretKeywordMatchesWholeWordOnly` — „pinnwand aufräumen" ist **nicht** privat, „pin 1234" schon
+- `entryMarkedSecretStaysOnDevice` — „anna ist schwanger, noch geheim!" → privat
+- `privateEntryIsFoundByKeyword` — Frage „wlan pw?" findet den privaten Eintrag ohne Modell
+- `knownPersonIsDetectedByAlias` — Alias „meine Freundin" → Lisa wird in „meine freundin mag rosen" erkannt
+- `unconfirmedAliasIsIgnored` — nur bestätigte Aliase zählen
 
 ### Schicht 1 — Rohspeicher (`Entry`)
 
@@ -71,6 +100,7 @@ Entry (@Model)                 // Schicht 1
   dueAt: Date?
   doneAt: Date?
   processedVersion: Int?
+  isPrivate: Bool              // Geheimnis-Filter: nie an ein Modell
   facts: [Fact]                // cascade delete
 
 Fact (@Model)                  // Schicht 2
@@ -90,6 +120,8 @@ Person (@Model)                // Schicht 3
 | Zeitpunkt | Was | Wo | Blockiert UI? |
 |---|---|---|---|
 | Absenden | `Entry` mit `rawText` speichern | SwiftData | nein, sofort |
+| direkt danach | **Geheimnis-Filter** — bei Treffer `isPrivate`, Verarbeitung endet hier | Vorstufe | nein |
+| direkt danach | **Personen-Vorerkennung** für den Extraktions-Kontext | Vorstufe | nein |
 | direkt danach | Klassifizierung (bestehendes Schema, unverändert) | `Classifier` | nein, Ergebnis erscheint in der Zeile |
 | direkt danach | **Extraktion**: Fakten, Personen, `eventDate`, Alias-Vorschläge | `Extractor` (neu) | nein |
 | direkt danach | **Abgleich**: aktuelle Fakten derselben Personen laden, LLM entscheidet, welche ersetzt werden | `Extractor` (gleicher Aufruf) | nein |
@@ -138,9 +170,10 @@ Plus `Evals/extraction.json`: Eingabe → erwartete Personen, `eventDate`, Alias
 
 | Schritt | Inhalt | Meilenstein |
 |---|---|---|
-| 1 | `Entry` append-only mit `rawText` und `processedVersion` | **M1** (läuft) |
+| 1 | `Entry` append-only mit `rawText`, `processedVersion`, `isPrivate` | **M1** (läuft) |
+| 1b | Geheimnis-Filter vor der Klassifizierung | **M1** |
 | 2 | Eval-Fälle: `extraction.json` + erweiterte `answering.json` | **M2a** |
-| 3 | `Extractor` (Haiku) + `Fact` + `Person`, Abgleich mit `supersededBy` | **M2a** |
+| 3 | Personen-Vorerkennung, `Extractor` (Haiku) + `Fact` + `Person`, Abgleich mit `supersededBy` | **M2a** |
 | 4 | Alias-Bestätigung in der UI (ein Banner, kein eigener Screen) | **M2a** |
 | 5 | Retriever (Personen + Stichworte + Zeitraum), `Answerer`, Antwort mit Quellen | **M2b** |
 | 6 | Nachverarbeitung offline / nach Versionswechsel | **M2b** |
@@ -154,6 +187,7 @@ Wissensgraph mit Kanten und Gemeinschafts-Zusammenfassungen (Zep), Vektor-Datenb
 
 | Risiko | Gegenmaßnahme |
 |---|---|
+| Geheimnis-Filter übersieht etwas („mein schlüssel liegt unter der matte") | Liste ist bewusst erweiterbar; Nutzer kann später einen Eintrag manuell als privat markieren (nach MVP) |
 | LLM markiert einen Fakt fälschlich als ersetzt | Nie löschen, nur markieren; Historie sichtbar; Update-Fälle in der Eval |
 | Falscher Alias vergiftet Antworten | Aliase nur nach Bestätigung |
 | Extraktion verliert Details | `rawText` bleibt Quelle; Neuverarbeitung jederzeit möglich; Antwort zeigt Original-Eintrag |

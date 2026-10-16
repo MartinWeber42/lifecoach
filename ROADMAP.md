@@ -59,6 +59,7 @@ Abfrage-Eval (`answering.json`) steht noch aus → M2.
 - Klassifizierung beim Absenden; Typ-Icon + Fälligkeit in der Zeile.
 - Korrigieren: Typ umschalten, Fälligkeit per DatePicker, Löschen per Swipe.
 - Fallback: LLM nicht verfügbar / Timeout 3 s → als `note` speichern; manueller Modus bei fehlender Apple Intelligence.
+- **Geheimnis-Filter** vor jedem KI-Aufruf (Wortliste und Tests in `MEMORY.md`, *Vorstufe*): private Einträge verlassen das Gerät nie.
 
 **Tests (Beispiele):** `captureIsSavedAsEntry`, `classifierTimeoutSavesAsNote`, `userCanChangeKindAfterClassification`, `unavailableModelEntersManualMode`.
 

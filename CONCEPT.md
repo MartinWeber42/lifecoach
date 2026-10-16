@@ -146,6 +146,7 @@ Entry (@Model)
 ## Datenschutz & Datensicherheit
 
 - Einziger Netzwerk-Endpunkt: `api.anthropic.com` (Haiku-Brücke). Mit dem Wechsel auf on-device entfällt auch dieser.
+- **Geheimnis-Filter:** Einträge mit Passwort/PIN/Code/„geheim" o. ä. gehen nie an ein Modell (Details `MEMORY.md`, *Vorstufe*).
 - **Bewusst akzeptiert (Brücke):** Eingaben und bei Fragen die relevanten Einträge gehen an Anthropic — auch Informationen über Dritte. Der Nutzer hat das entschieden; on-device bleibt das Ziel.
 - Offline: Eingabe wird als `note` gespeichert und nachklassifiziert, sobald Netz da ist.
 - Kein Analytics, kein Crash-Reporting außer dem, was Apple über TestFlight liefert (Opt-in des Nutzers).
