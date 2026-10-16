@@ -23,6 +23,10 @@ final class AppSettings {
         apiKey.isEmpty ? nil : HaikuExtractor(apiKey: apiKey)
     }
 
+    var answerer: (any Answerer)? {
+        apiKey.isEmpty ? nil : HaikuAnswerer(apiKey: apiKey)
+    }
+
     var isManualMode: Bool { classifier == nil }
 }
 

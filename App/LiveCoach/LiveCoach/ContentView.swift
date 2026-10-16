@@ -12,11 +12,14 @@ struct ContentView: View {
     @State private var editingEntry: Entry?
     @State private var showSettings = false
     @State private var pendingAliases: [Extraction.AliasSuggestion] = []
+    @State private var queryText: String?
+    @State private var querySources: [Entry] = []
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                if !pendingAliases.isEmpty { aliasBanner }
+                if let queryText { queryBubble }
+            if !pendingAliases.isEmpty { aliasBanner }
                 entryList
                 Divider()
                 inputBar
@@ -90,7 +93,7 @@ struct ContentView: View {
     private func processExtraction(for entry: Entry, input: String) {
         guard !entry.isPrivate, let extractor = settings.extractor else { return }
         Task {
-            let facts = (try? context.fetch(FetchDescriptor<Fact>()))?.filter { $0.supersededBy == nil } ?? []
+            let facts = (try? context.fetch(FetchDescriptor<Fact>()))?.filter { $0.supersededByID == nil } ?? []
             let people = (try? context.fetch(FetchDescriptor<Person>())) ?? []
             guard let extraction = try? await extractor.extract(input, facts: facts, people: people, now: .now, timeZone: .current) else { return }
             let suggestions = try? ExtractionApplier().apply(extraction, to: entry, in: context)
@@ -128,6 +131,55 @@ struct ContentView: View {
         pendingAliases.removeAll { $0 == suggestion }
     }
 
+    /// Abfrage (CONCEPT Flow C): private Treffer → Kandidaten → Antwort, blockiert nie.
+    private func runQuery(_ question: String) {
+        let query = QueryService(answerer: settings.answerer)
+        let facts = (try? context.fetch(FetchDescriptor<Fact>())) ?? []
+        let allEntries = (try? context.fetch(FetchDescriptor<Entry>())) ?? []
+        let people = (try? context.fetch(FetchDescriptor<Person>())) ?? []
+        Task {
+            let outcome = await query.ask(question, facts: facts, entries: allEntries, people: people)
+            switch outcome {
+            case .answered(let answer):
+                queryText = answer.text
+                querySources = answer.sourceIDs.compactMap { id in facts.first { $0.id == id }?.entry }
+            case .nothingStored:
+                queryText = "Dazu habe ich nichts gespeichert."
+                querySources = []
+            case .matches(let ids):
+                queryText = "Treffer:"
+                querySources = ids.compactMap { id in facts.first { $0.id == id }?.entry }
+            case .privateEntries(let hits):
+                queryText = "Privat — nur auf dem Gerät:"
+                querySources = hits
+            }
+        }
+    }
+
+    /// Antwort mit Quellen (CONCEPT Flow C): der Nutzer kann die Antwort selbst prüfen.
+    private var queryBubble: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(queryText ?? "")
+                    .font(.body)
+                Spacer()
+                Button {
+                    queryText = nil
+                    querySources = []
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.secondary)
+                }
+            }
+            ForEach(querySources) { entry in
+                EntryRow(entry: entry)
+                    .onTapGesture { editingEntry = entry }
+            }
+        }
+        .padding()
+        .background(Color.blue.opacity(0.08))
+    }
+
     private func submitCapture() {
         let text = inputText.trimmingCharacters(in: .whitespaces)
         guard !text.isEmpty, !isBusy else { return }
@@ -136,10 +188,15 @@ struct ContentView: View {
         let service = CaptureService(classifier: settings.classifier)
         let ctx = context
         Task {
-            let entry = await service.classify(text)
-            ctx.insert(entry)
+            let outcome = await service.capture(text)
             isBusy = false
-            processExtraction(for: entry, input: text)
+            switch outcome {
+            case .entry(let entry):
+                ctx.insert(entry)
+                processExtraction(for: entry, input: text)
+            case .question(let q):
+                runQuery(q)
+            }
         }
     }
 }
