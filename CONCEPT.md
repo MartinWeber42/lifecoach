@@ -116,7 +116,7 @@ Regeln:
 **Einschränkung:** „Bewiesen" heißt: mit dem Modell des Bot-Prototyps und 8 Beispielen. Für Apple Foundation Models auf Deutsch ist das Schema **nicht** bewiesen — das wird in M0 mit einer Eval-Suite (≥ 60 Beispiele) gemessen. Das Schema selbst bleibt unverändert (Regel 5).
 
 **Ergänzungen der Regeln (Klarstellung, kein Schema-Change):**
-- `due` ohne Uhrzeit („am Freitag") → 09:00 Ortszeit.
+- Erinnerungen haben immer eine Uhrzeit. Nennt die Eingabe keine („am Freitag"), setzt das Modell 09:00 Ortszeit; die App zeigt die Uhrzeit vorausgewählt zur Bestätigung.
 - Zeitzone: immer die aktuelle Gerätezeitzone; das Prompt enthält Datum, Wochentag und Uhrzeit.
 
 ## Datenmodell
@@ -162,6 +162,7 @@ Voice-Input, Siri/App Intents, Widgets, wiederkehrende Erinnerungen („jeden Mo
 
 ## Entscheidungen (getroffen)
 
+- ⚠️ **Offen wegen Hardware:** Das Test-iPhone ist ein iPhone 13 — das unterstützt **kein** Apple Intelligence, Foundation Models läuft darauf nicht. Der Mac (M4 Pro, macOS 26) kann es, dort laufen die Evals. Für die App auf dem Telefon muss entschieden werden: neues Gerät (iPhone 15 Pro oder neuer) oder doch MLX/llama.cpp mit kleinem Modell. Die folgende Entscheidung gilt nur unter der Annahme „neues Gerät".
 - **iOS 26 als Minimum, kein MLX/llama.cpp-Fallback im MVP.** Ein Fallback bedeutet Modell-Download (~2 GB), eigenen Inferenz-Stack und doppelte Eval-Arbeit — für einen einzelnen Nutzer mit Apple-Intelligence-Gerät reiner Overhead. Ohne Apple Intelligence läuft die App im manuellen Modus.
 - **Retrieval vor Embeddings:** lexikalisch starten, messen, erst dann Embeddings.
 

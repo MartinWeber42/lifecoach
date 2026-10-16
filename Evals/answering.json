@@ -1,0 +1,152 @@
+{
+ "now": "2026-10-16T14:30:00+02:00",
+ "timeZone": "Europe/Berlin",
+ "entries": [
+  {
+   "text": "lisa wünscht sich zu weihnachten ne keramikvase",
+   "createdAt": "2026-09-02"
+  },
+  {
+   "text": "tom mag keinen koriander",
+   "createdAt": "2026-08-14"
+  },
+  {
+   "text": "wlan pw bei den eltern ist sonnenblume42",
+   "createdAt": "2026-07-30"
+  },
+  {
+   "text": "lisa schuhgröße 39",
+   "createdAt": "2026-06-11"
+  },
+  {
+   "text": "parkhaus ebene 3 platz 112",
+   "createdAt": "2026-10-16"
+  },
+  {
+   "text": "neuer nachbar heißt jonas, hat nen hund namens bello",
+   "createdAt": "2026-09-20"
+  },
+  {
+   "text": "hab jonas 50€ geliehen",
+   "createdAt": "2026-10-01"
+  },
+  {
+   "text": "lieblingswein von papa: grauburgunder",
+   "createdAt": "2026-05-03"
+  },
+  {
+   "text": "toms freundin heißt mia",
+   "createdAt": "2026-08-22"
+  },
+  {
+   "text": "filmtipp: past lives",
+   "createdAt": "2026-09-28"
+  },
+  {
+   "text": "buchtipp von anna: der gesang der flusskrebse",
+   "createdAt": "2026-07-12"
+  },
+  {
+   "text": "anna ist schwanger, noch geheim!",
+   "createdAt": "2026-10-05"
+  },
+  {
+   "text": "der italiener in der bahnhofstr is richtig gut",
+   "createdAt": "2026-09-09"
+  },
+  {
+   "text": "heizung im bad macht komische geräusche",
+   "createdAt": "2026-10-10"
+  },
+  {
+   "text": "fahrradschloss code 4711",
+   "createdAt": "2026-04-18"
+  }
+ ],
+ "cases": [
+  {
+   "question": "was wünscht sich lisa zu weihnachten?",
+   "expected": [
+    "vase"
+   ]
+  },
+  {
+   "question": "wie war das wlan passwort bei meinen eltern",
+   "expected": [
+    "sonnenblume42"
+   ]
+  },
+  {
+   "question": "welche schuhgröße hat lisa",
+   "expected": [
+    "39"
+   ]
+  },
+  {
+   "question": "wo hab ich geparkt",
+   "expected": [
+    "112"
+   ]
+  },
+  {
+   "question": "wie heißt der hund vom nachbarn",
+   "expected": [
+    "bello"
+   ]
+  },
+  {
+   "question": "wem hab ich geld geliehen",
+   "expected": [
+    "jonas"
+   ]
+  },
+  {
+   "question": "was trinkt papa gern",
+   "expected": [
+    "grauburgunder"
+   ]
+  },
+  {
+   "question": "welchen film wollte ich schauen",
+   "expected": [
+    "past lives"
+   ]
+  },
+  {
+   "question": "wie heißt toms freundin",
+   "expected": [
+    "mia"
+   ]
+  },
+  {
+   "question": "was hat anna empfohlen",
+   "expected": [
+    "flusskrebse"
+   ]
+  },
+  {
+   "question": "was wünscht sich tom zum geburtstag",
+   "expected": null
+  },
+  {
+   "question": "welche schuhgröße hat tom",
+   "expected": null
+  },
+  {
+   "question": "wie heißt annas hund",
+   "expected": null
+  },
+  {
+   "question": "wann hat lisa geburtstag",
+   "expected": null
+  },
+  {
+   "question": "wo hab ich meinen schlüssel hingelegt",
+   "expected": null
+  },
+  {
+   "question": "wie ist annas handynummer",
+   "expected": null
+  }
+ ]
+}

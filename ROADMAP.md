@@ -13,8 +13,9 @@ Jeder Meilenstein ist ein **vertikaler Slice**: am Ende läuft etwas Benutzbares
 **Frage:** Trägt Apple Foundation Models das Konzept?
 
 - Xcode-Projekt + Swift-Testing-Target anlegen (iOS 26).
-- Eval-Datensatz `Evals/classification.json`: ≥ 60 deutsche Eingaben, umgangssprachlich, mit Tippfehlern, ~⅓ je `kind`; davon ≥ 20 mit relativen Datumsangaben („übermorgen", „nächsten Di um 3", „in zwei Wochen").
-- Eval-Datensatz `Evals/answering.json`: ≥ 15 Fälle (Einträge + Frage + erwartete Antwort), davon ≥ 5, bei denen die richtige Antwort „nichts gespeichert" ist.
+- **Läuft auf dem Mac** (M4 Pro, Apple Intelligence) — das iPhone 13 kann Foundation Models nicht.
+- Eval-Datensatz `Evals/classification.json` ✅ (67 Fälle, Format in `Evals/README.md`): ≥ 60 deutsche Eingaben, umgangssprachlich, mit Tippfehlern, ~⅓ je `kind`; davon ≥ 20 mit relativen Datumsangaben („übermorgen", „nächsten Di um 3", „in zwei Wochen").
+- Eval-Datensatz `Evals/answering.json` ✅ (16 Fälle): ≥ 15 Fälle (Einträge + Frage + erwartete Antwort), davon ≥ 5, bei denen die richtige Antwort „nichts gespeichert" ist.
 - `FoundationModelClassifier` mit `@Generable`-Struct nach Schema.
 - Eval-Runner (Test-Target, nicht in der normalen Suite), gibt Trefferquoten aus.
 

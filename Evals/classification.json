@@ -1,0 +1,341 @@
+{
+ "now": "2026-10-16T14:30:00+02:00",
+ "timeZone": "Europe/Berlin",
+ "cases": [
+  {
+   "input": "zahnarzt nächsten di 15 uhr",
+   "kind": "reminder",
+   "due": "2026-10-20T15:00:00+02:00"
+  },
+  {
+   "input": "morgen 10 uhr mama anrufen",
+   "kind": "reminder",
+   "due": "2026-10-17T10:00:00+02:00"
+  },
+  {
+   "input": "erinner mich übermorgen an die steuer",
+   "kind": "reminder",
+   "due": "2026-10-18T09:00:00+02:00"
+  },
+  {
+   "input": "in 2 wochen reifenwechsel",
+   "kind": "reminder",
+   "due": "2026-10-30T09:00:00+01:00"
+  },
+  {
+   "input": "heute abend 20 uhr müll raus",
+   "kind": "reminder",
+   "due": "2026-10-16T20:00:00+02:00"
+  },
+  {
+   "input": "in einer stunde wäsche aus der maschine",
+   "kind": "reminder",
+   "due": "2026-10-16T15:30:00+02:00"
+  },
+  {
+   "input": "in 30 min pizza ausm ofen",
+   "kind": "reminder",
+   "due": "2026-10-16T15:00:00+02:00"
+  },
+  {
+   "input": "am montag um 8 meeting mit chef vorbereiten",
+   "kind": "reminder",
+   "due": "2026-10-19T08:00:00+02:00"
+  },
+  {
+   "input": "nächste woche mittwoch 18:30 kino mit lisa",
+   "kind": "reminder",
+   "due": "2026-10-21T18:30:00+02:00"
+  },
+  {
+   "input": "freitag in einer woche toms geburtstag, geschenk!",
+   "kind": "reminder",
+   "due": "2026-10-23T09:00:00+02:00"
+  },
+  {
+   "input": "morgen früh um 7 joggen",
+   "kind": "reminder",
+   "due": "2026-10-17T07:00:00+02:00"
+  },
+  {
+   "input": "sonntag 11 uhr brunch bei anna",
+   "kind": "reminder",
+   "due": "2026-10-18T11:00:00+02:00"
+  },
+  {
+   "input": "in 3 tagen paket abholen",
+   "kind": "reminder",
+   "due": "2026-10-19T09:00:00+02:00"
+  },
+  {
+   "input": "am 30. miete überweisen",
+   "kind": "reminder",
+   "due": "2026-10-30T09:00:00+01:00"
+  },
+  {
+   "input": "montag 16 uhr friseur",
+   "kind": "reminder",
+   "due": "2026-10-19T16:00:00+02:00"
+  },
+  {
+   "input": "heute 17 uhr paket zur post",
+   "kind": "reminder",
+   "due": "2026-10-16T17:00:00+02:00"
+  },
+  {
+   "input": "kommenden donnerstag 19 uhr volleyball",
+   "kind": "reminder",
+   "due": "2026-10-22T19:00:00+02:00"
+  },
+  {
+   "input": "in zwei stunden tabletten nehmen",
+   "kind": "reminder",
+   "due": "2026-10-16T16:30:00+02:00"
+  },
+  {
+   "input": "mo 7:45 auto in die werkstatt",
+   "kind": "reminder",
+   "due": "2026-10-19T07:45:00+02:00"
+  },
+  {
+   "input": "erinner mich am 1. november zählerstand ablesen",
+   "kind": "reminder",
+   "due": "2026-11-01T09:00:00+01:00"
+  },
+  {
+   "input": "am 3.11. um 14 uhr arzttermin",
+   "kind": "reminder",
+   "due": "2026-11-03T14:00:00+01:00"
+  },
+  {
+   "input": "erinnere mich am 20.12 geschenk für lisa einpacken",
+   "kind": "reminder",
+   "due": "2026-12-20T09:00:00+01:00"
+  },
+  {
+   "input": "tüv termin 12.11. 10:30",
+   "kind": "reminder",
+   "due": "2026-11-12T10:30:00+01:00"
+  },
+  {
+   "input": "erinner mich irgendwann ans auto waschen",
+   "kind": "reminder",
+   "due": null
+  },
+  {
+   "input": "muss dran denken die versicherung zu kündigen",
+   "kind": "reminder",
+   "due": null
+  },
+  {
+   "input": "lisa wünscht sich zu weihnachten ne keramikvase",
+   "kind": "note",
+   "due": null
+  },
+  {
+   "input": "tom mag keinen koriander",
+   "kind": "note",
+   "due": null
+  },
+  {
+   "input": "wlan pw bei den eltern ist sonnenblume42",
+   "kind": "note",
+   "due": null
+  },
+  {
+   "input": "der handwerker heißt herr krause, nummer is im handy",
+   "kind": "note",
+   "due": null
+  },
+  {
+   "input": "idee: app die mich ans pflanzen gießen erinnert",
+   "kind": "note",
+   "due": null
+  },
+  {
+   "input": "lisa schuhgröße 39",
+   "kind": "note",
+   "due": null
+  },
+  {
+   "input": "parkhaus ebene 3 platz 112",
+   "kind": "note",
+   "due": null
+  },
+  {
+   "input": "buchtipp von anna: der gesang der flusskrebse",
+   "kind": "note",
+   "due": null
+  },
+  {
+   "input": "war heute beim zahnarzt, alles ok",
+   "kind": "note",
+   "due": null
+  },
+  {
+   "input": "lisa findet rosa doof",
+   "kind": "note",
+   "due": null
+  },
+  {
+   "input": "neuer nachbar heißt jonas, hat nen hund namens bello",
+   "kind": "note",
+   "due": null
+  },
+  {
+   "input": "fahrradschloss code 4711",
+   "kind": "note",
+   "due": null
+  },
+  {
+   "input": "der italiener in der bahnhofstr is richtig gut",
+   "kind": "note",
+   "due": null
+  },
+  {
+   "input": "gedanke: vllt mehr sport machen",
+   "kind": "note",
+   "due": null
+  },
+  {
+   "input": "chef will den bericht lieber als pdf",
+   "kind": "note",
+   "due": null
+  },
+  {
+   "input": "anna ist schwanger, noch geheim!",
+   "kind": "note",
+   "due": null
+  },
+  {
+   "input": "lieblingswein von papa: grauburgunder",
+   "kind": "note",
+   "due": null
+  },
+  {
+   "input": "heizung im bad macht komische geräusche",
+   "kind": "note",
+   "due": null
+  },
+  {
+   "input": "toms freundin heißt mia",
+   "kind": "note",
+   "due": null
+  },
+  {
+   "input": "hab jonas 50€ geliehen",
+   "kind": "note",
+   "due": null
+  },
+  {
+   "input": "filmtipp: past lives",
+   "kind": "note",
+   "due": null
+  },
+  {
+   "input": "gestern 5km gelaufen in 28 min",
+   "kind": "note",
+   "due": null
+  },
+  {
+   "input": "was wünscht sich lisa zu weihnachten?",
+   "kind": "question",
+   "due": null
+  },
+  {
+   "input": "wie war nochmal das wlan pw bei meinen eltern",
+   "kind": "question",
+   "due": null
+  },
+  {
+   "input": "welche schuhgröße hat lisa",
+   "kind": "question",
+   "due": null
+  },
+  {
+   "input": "wo hab ich geparkt",
+   "kind": "question",
+   "due": null
+  },
+  {
+   "input": "wie heißt der handwerker",
+   "kind": "question",
+   "due": null
+  },
+  {
+   "input": "was hat anna für n buch empfohlen",
+   "kind": "question",
+   "due": null
+  },
+  {
+   "input": "wem hab ich geld geliehen?",
+   "kind": "question",
+   "due": null
+  },
+  {
+   "input": "was trinkt papa gern",
+   "kind": "question",
+   "due": null
+  },
+  {
+   "input": "wann ist mein zahnarzttermin",
+   "kind": "question",
+   "due": null
+  },
+  {
+   "input": "wie heißt toms freundin",
+   "kind": "question",
+   "due": null
+  },
+  {
+   "input": "hab ich was zur heizung notiert",
+   "kind": "question",
+   "due": null
+  },
+  {
+   "input": "was mag tom nicht essen",
+   "kind": "question",
+   "due": null
+  },
+  {
+   "input": "welcher italiener war gut",
+   "kind": "question",
+   "due": null
+  },
+  {
+   "input": "wie war der code vom fahrradschloss",
+   "kind": "question",
+   "due": null
+  },
+  {
+   "input": "was steht diese woche an?",
+   "kind": "question",
+   "due": null
+  },
+  {
+   "input": "wann war ich zuletzt joggen",
+   "kind": "question",
+   "due": null
+  },
+  {
+   "input": "wie heißt der hund vom nachbarn",
+   "kind": "question",
+   "due": null
+  },
+  {
+   "input": "welchen film wollte ich schauen",
+   "kind": "question",
+   "due": null
+  },
+  {
+   "input": "hatte ich ne app idee?",
+   "kind": "question",
+   "due": null
+  },
+  {
+   "input": "muss ich morgen was machen?",
+   "kind": "question",
+   "due": null
+  }
+ ]
+}
