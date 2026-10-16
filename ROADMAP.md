@@ -13,11 +13,12 @@ Jeder Meilenstein ist ein **vertikaler Slice**: am Ende läuft etwas Benutzbares
 **Frage:** Trägt Apple Foundation Models das Konzept?
 
 - Xcode-Projekt + Swift-Testing-Target anlegen (iOS 26).
-- **Läuft auf dem Mac** (M4 Pro, Apple Intelligence) — das iPhone 13 kann Foundation Models nicht.
+- **Misst beide Modelle mit denselben Daten:** Haiku (Brücke, läuft auf dem iPhone 13) und Foundation Models (Ziel, nur auf dem Mac messbar). So ist der Abstand bekannt, bevor die Brücke abgelöst wird.
 - Eval-Datensatz `Evals/classification.json` ✅ (67 Fälle, Format in `Evals/README.md`): ≥ 60 deutsche Eingaben, umgangssprachlich, mit Tippfehlern, ~⅓ je `kind`; davon ≥ 20 mit relativen Datumsangaben („übermorgen", „nächsten Di um 3", „in zwei Wochen").
 - Eval-Datensatz `Evals/answering.json` ✅ (16 Fälle): ≥ 15 Fälle (Einträge + Frage + erwartete Antwort), davon ≥ 5, bei denen die richtige Antwort „nichts gespeichert" ist.
-- `FoundationModelClassifier` mit `@Generable`-Struct nach Schema.
-- Eval-Runner (Test-Target, nicht in der normalen Suite), gibt Trefferquoten aus.
+- Swift-Paket `LifeCoachCore` ✅ (ungetestet kompiliert — erster Build auf dem Mac): `HaikuClassifier` und `FoundationModelClassifier` hinter `Classifier`.
+- Eval-Runner ✅ (`ClassificationEval`, nur mit `LIFECOACH_EVAL` gesetzt), gibt Trefferquoten aus. Aufruf siehe `Evals/README.md`.
+- Abfrage-Eval (`answering.json`) folgt mit dem `Answerer` in M2.
 
 **Exit-Kriterien:**
 | Metrik | Schwelle |
@@ -27,6 +28,8 @@ Jeder Meilenstein ist ein **vertikaler Slice**: am Ende läuft etwas Benutzbares
 | Antwort korrekt **oder** korrekt „nichts gespeichert" | ≥ 80 % |
 | Halluzinierte Antwort bei „nichts gespeichert"-Fällen | 0 |
 | Klassifizierungs-Latenz (Median, Gerät) | ≤ 2 s |
+
+**Schwellen gelten für das Modell, mit dem die App gerade läuft** (zunächst Haiku). Foundation-Models-Zahlen sind die Entscheidungsgrundlage für den späteren Wechsel.
 
 **Wenn verfehlt:** `due` zu schlecht → deterministische Vorstufe mit `NSDataDetector`, LLM nur für `kind`/`text`. `kind` zu schlecht → Prompt/Few-Shot iterieren, erst dann über Schema reden (Regel 5: nur mit Absprache). Antworten zu schlecht → Retrieval enger, Antwortformat strikter.
 
@@ -82,13 +85,13 @@ Jeder Meilenstein ist ein **vertikaler Slice**: am Ende läuft etwas Benutzbares
 - JSON-Export über Share-Sheet.
 - `NSFileProtectionComplete` für den Store.
 - Leerer Zustand mit 2–3 Beispiel-Eingaben als Hilfe.
-- App-Icon, Name, Privacy-Manifest („Data Not Collected").
+- App-Icon, Name, Privacy-Manifest (Brücke: Eingaben gehen an Anthropic zur Verarbeitung).
 - TestFlight-Build, 2 Wochen Eigennutzung.
 
 **MVP ist erreicht, wenn:**
 1. Original-User-Story auf dem Gerät nach ≥ 2 Wochen echter Nutzung funktioniert.
 2. Keine verlorene Eingabe, keine verpasste Erinnerung in diesen 2 Wochen.
-3. Die App macht keinen einzigen Netzwerk-Request.
+3. Die App spricht mit keinem Endpunkt außer `api.anthropic.com`.
 
 ---
 
@@ -100,7 +103,7 @@ Jeder Meilenstein ist ein **vertikaler Slice**: am Ende läuft etwas Benutzbares
 | Voice-Input | Eingaben werden unterwegs ausgelassen, weil Tippen zu langsam ist |
 | Siri / App Intents / Widget | Öffnen der App ist der Engpass |
 | Wiederkehrende Erinnerungen | ≥ 3 wiederkehrende Dinge werden manuell immer neu angelegt |
-| Fallback-LLM (MLX/llama.cpp) | Ein zweites Gerät ohne Apple Intelligence soll unterstützt werden |
+| Wechsel Haiku → Foundation Models | Neues iPhone da und M0-Zahlen von Foundation Models reichen (Nutzer-Entscheidung) |
 
 ## Risiken
 

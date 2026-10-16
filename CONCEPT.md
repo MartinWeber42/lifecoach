@@ -73,9 +73,10 @@ Frage → Retrieval (Kandidaten-Einträge finden) → LLM antwortet nur aus Kand
 ## Architektur
 
 - **Native iOS-App** (SwiftUI), Mindestversion **iOS 26**.
-- **LLM on-device:** Apple Foundation Models Framework (Systemmodell, kein Download, gratis).
+- **LLM, Ziel:** Apple Foundation Models Framework (on-device, kein Download, gratis).
+- **LLM, Brücke (jetzt):** Claude Haiku (`claude-haiku-5-5`) per Messages API, direkt aus der App via `URLSession` (kein offizielles Swift-SDK). Strukturierte Ausgabe über `output_config.format` (JSON-Schema) — dasselbe Schema wie on-device. API-Key gibt der Nutzer in den Einstellungen ein, gespeichert in der Keychain, nie im Code/Repo. Ausgabenlimit in der Anthropic Console.
   - Strukturierte Ausgabe über **Guided Generation** (`@Generable`) statt freiem JSON-Parsing. Das Schema (`kind`/`text`/`due`) bleibt identisch, nur der Transport wird robuster.
-  - **Kein** Private-Cloud-Compute-Modell (Regel 3: kein Cloud-Inference).
+  - **Kein** Private-Cloud-Compute-Modell, kein weiterer Cloud-Dienst neben der Haiku-Brücke.
 - **Speicher:** SwiftData.
 - **Erinnerungen:** `UNUserNotificationCenter`.
 - **Retrieval:** zunächst lexikalisch (Stichwort-/Token-Overlap über `rawText` + `text`), Embeddings (`NLEmbedding`) erst wenn die Eval-Suite zeigt, dass es nötig ist.
@@ -142,7 +143,9 @@ Entry (@Model)
 
 ## Datenschutz & Datensicherheit
 
-- Keine Netzwerk-Requests aus der App (im Code prüfbar: kein `URLSession`).
+- Einziger Netzwerk-Endpunkt: `api.anthropic.com` (Haiku-Brücke). Mit dem Wechsel auf on-device entfällt auch dieser.
+- **Bewusst akzeptiert (Brücke):** Eingaben und bei Fragen die relevanten Einträge gehen an Anthropic — auch Informationen über Dritte. Der Nutzer hat das entschieden; on-device bleibt das Ziel.
+- Offline: Eingabe wird als `note` gespeichert und nachklassifiziert, sobald Netz da ist.
 - Kein Analytics, kein Crash-Reporting außer dem, was Apple über TestFlight liefert (Opt-in des Nutzers).
 - **Spannungsfeld Datenverlust:** „Nichts verlässt das Handy" heißt auch: Handy weg = Gehirn weg. MVP-Entscheidung: App-Daten sind Teil des normalen iOS-Geräte-Backups (Default, vom Nutzer kontrolliert, mit Advanced Data Protection Ende-zu-Ende-verschlüsselt). Zusätzlich manueller **JSON-Export** über das Share-Sheet. Kein eigener Sync.
 - Dateischutz: `NSFileProtectionComplete` für den SwiftData-Store.
@@ -162,8 +165,9 @@ Voice-Input, Siri/App Intents, Widgets, wiederkehrende Erinnerungen („jeden Mo
 
 ## Entscheidungen (getroffen)
 
-- ⚠️ **Offen wegen Hardware:** Das Test-iPhone ist ein iPhone 13 — das unterstützt **kein** Apple Intelligence, Foundation Models läuft darauf nicht. Der Mac (M4 Pro, macOS 26) kann es, dort laufen die Evals. Für die App auf dem Telefon muss entschieden werden: neues Gerät (iPhone 15 Pro oder neuer) oder doch MLX/llama.cpp mit kleinem Modell. Die folgende Entscheidung gilt nur unter der Annahme „neues Gerät".
-- **iOS 26 als Minimum, kein MLX/llama.cpp-Fallback im MVP.** Ein Fallback bedeutet Modell-Download (~2 GB), eigenen Inferenz-Stack und doppelte Eval-Arbeit — für einen einzelnen Nutzer mit Apple-Intelligence-Gerät reiner Overhead. Ohne Apple Intelligence läuft die App im manuellen Modus.
+- **Hardware:** Test-iPhone ist ein iPhone 13 (iOS 26.6) — **kein** Apple Intelligence, Foundation Models läuft darauf nicht. Mac M4 Pro (macOS 26.2) kann es; dort laufen die Evals für beide Modelle.
+- **Haiku-Brücke statt MLX/llama.cpp.** Ein lokales Ersatzmodell auf 4 GB RAM wäre ein eigenes Projekt mit schwächeren Ergebnissen. Die Brücke läuft hinter denselben Protokollen wie später Foundation Models. Wann gewechselt wird: Nutzer-Entscheidung, sobald ein neues iPhone da ist, auf Basis der M0-Zahlen beider Modelle.
+- **iOS 26 als Minimum.** Ohne Netz und ohne Apple Intelligence läuft die App im manuellen Modus.
 - **Retrieval vor Embeddings:** lexikalisch starten, messen, erst dann Embeddings.
 
 ## Offene Fragen

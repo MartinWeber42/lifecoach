@@ -20,3 +20,13 @@ Beide Dateien haben einen festen Stichtag `now` (Fr 16.10.2026 14:30, Europe/Ber
 - `expected: null` → korrekt nur, wenn die App „nichts gespeichert" meldet. Jede andere Antwort zählt als Halluzination.
 
 Schwellen: siehe `ROADMAP.md`, M0.
+
+## Ausführen (auf dem Mac)
+
+```sh
+swift test                                                   # Unit-Tests, ohne Modell
+LIFECOACH_EVAL=haiku ANTHROPIC_API_KEY=… swift test --filter ClassificationEval
+LIFECOACH_EVAL=apple swift test --filter ClassificationEval  # Apple Intelligence muss an sein
+```
+
+Ausgabe: jede falsche Klassifizierung als Zeile (`KIND`, `DUE`, `FEHLER`), am Ende Quoten und Median-Latenz. Kosten Haiku-Lauf: Bruchteil eines Cents. Den API-Key nie committen.

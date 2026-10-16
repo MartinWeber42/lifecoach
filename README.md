@@ -6,4 +6,4 @@ Dein mobiles Gehirn — native iOS-App mit on-device LLM: Gedanken aufnehmen, lo
 - **MVP-Roadmap:** [ROADMAP.md](ROADMAP.md)
 - **Agent-Regeln:** [AGENTS.md](AGENTS.md)
 
-**Status:** Phase 0 — Konzept und Roadmap stehen, Implementierung startet bei M0 (Machbarkeits-Spike: Eval des On-Device-Modells).
+**Status:** M0 — Eval-Daten und Messprogramm stehen (`Evals/`, `swift test`). LLM läuft vorerst über Claude Haiku als Brücke, Ziel bleibt on-device (siehe `AGENTS.md`, Regel 3).
