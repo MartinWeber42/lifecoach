@@ -51,7 +51,7 @@ struct ClassificationEval {
             return HaikuClassifier(apiKey: try #require(ProcessInfo.processInfo.environment["ANTHROPIC_API_KEY"], "ANTHROPIC_API_KEY fehlt"))
         #if canImport(FoundationModels)
         case "apple":
-            try #require(FoundationModelClassifier.isAvailable, "Apple Intelligence nicht verfügbar")
+            try #require(FoundationModelClassifier.isAvailable, "Apple Intelligence nicht verfügbar: \(FoundationModelClassifier.availability)")
             return FoundationModelClassifier()
         #endif
         default:

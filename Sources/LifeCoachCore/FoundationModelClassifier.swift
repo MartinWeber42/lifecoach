@@ -10,6 +10,11 @@ public struct FoundationModelClassifier: Classifier {
         if case .available = SystemLanguageModel.default.availability { true } else { false }
     }
 
+    /// Reason when unavailable, e.g. appleIntelligenceNotEnabled or modelNotReady.
+    public static var availability: String {
+        String(describing: SystemLanguageModel.default.availability)
+    }
+
     public func classify(_ input: String, now: Date, timeZone: TimeZone) async throws -> Classification {
         let session = LanguageModelSession(instructions: ClassificationPrompt.instructions(now: now, timeZone: timeZone))
         let result = try await session.respond(to: input, generating: Generated.self).content
