@@ -8,7 +8,7 @@ Jeder Meilenstein ist ein **vertikaler Slice**: am Ende läuft etwas Benutzbares
 
 ---
 
-## M0 — Machbarkeits-Spike (Go/No-Go)
+## M0 — Machbarkeits-Spike (Go/No-Go) — ✅ Go für Haiku (16.10.2026)
 
 **Frage:** Trägt Apple Foundation Models das Konzept?
 
@@ -32,6 +32,23 @@ Jeder Meilenstein ist ein **vertikaler Slice**: am Ende läuft etwas Benutzbares
 **Schwellen gelten für das Modell, mit dem die App gerade läuft** (zunächst Haiku). Foundation-Models-Zahlen sind die Entscheidungsgrundlage für den späteren Wechsel.
 
 **Wenn verfehlt:** `due` zu schlecht → deterministische Vorstufe mit `NSDataDetector`, LLM nur für `kind`/`text`. `kind` zu schlecht → Prompt/Few-Shot iterieren, erst dann über Schema reden (Regel 5: nur mit Absprache). Antworten zu schlecht → Retrieval enger, Antwortformat strikter.
+
+**Ergebnis Klassifizierung (Mac M4 Pro, 16.10.2026, Prompt-Stand `9527e82`):**
+
+| Modell | kind | due | Median | Urteil |
+|---|---|---|---|---|
+| Claude Haiku 5.5 (Lauf 1 / 2) | 66/67 · 67/67 | 24/25 · 24/25 | 1,3 s · 1,2 s | ✅ alle Schwellen |
+| Apple Foundation Models | 52/67 (78 %) | 12/25 (48 %) | 1,0 s | ❌ |
+
+Befunde Apple-Modell (für den späteren Wechsel):
+- Datumsrechnung unzuverlässig, auch mit Kalenderliste: Wochentage um einen Tag verschoben, „in 30 min" = jetzt, falsches Jahr. → Wechsel nur mit deterministischer Datums-Vorstufe (`NSDataDetector`), LLM dann nur für `kind`/`text`.
+- Fragen weiterhin oft als `note` erkannt.
+- **Guardrail-Fehlalarme** bei harmlosen Eingaben („hab jonas 50€ geliehen", „versicherung kündigen", „welcher italiener war gut") — 4/67 blockiert. Für ein Gedächtnis, das alles aufnehmen soll, ein eigenes Risiko.
+- Bewusst **kein weiteres Prompt-Tuning** für das Apple-Modell jetzt: Es läuft auf dem iPhone 13 ohnehin nicht. Neu messen, wenn ein neues iPhone ansteht.
+
+Haiku-Restfehler sind uneinheitlich zwischen Läufen (nicht-deterministisch) und echte Mehrdeutigkeiten („nächste woche mittwoch") — abgedeckt durch die Bestätigung des Zeitpunkts in der UI (M1/M3).
+
+Abfrage-Eval (`answering.json`) steht noch aus → M2.
 
 ---
 
