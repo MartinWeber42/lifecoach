@@ -51,7 +51,11 @@ struct ContentView: View {
                         .listRowSeparator(.hidden)
                 }
                 .onDelete { indices in
-                    for i in indices { context.delete(entries[i]) }
+                    for i in indices {
+                        let id = entries[i].id
+                        context.delete(entries[i])
+                        Task { await UNReminderScheduler().cancel(id: id) }
+                    }
                 }
             }
             .listStyle(.plain)
@@ -63,6 +67,7 @@ struct ContentView: View {
             .onAppear {
                 proxy.scrollTo(entries.last?.persistentModelID, anchor: .bottom)
                 reprocessPending()
+                Task { await UNReminderScheduler().rescheduleAll(entries, now: .now) }
             }
         }
     }
@@ -211,6 +216,7 @@ struct ContentView: View {
             switch outcome {
             case .entry(let entry):
                 ctx.insert(entry)
+                await UNReminderScheduler().schedule(entry, now: .now)
                 processExtraction(for: entry, input: text)
             case .question(let q):
                 runQuery(q)

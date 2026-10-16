@@ -75,7 +75,17 @@ struct EntryDetailView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Fertig") { dismiss() }
+                    Button("Fertig") {
+                        Task {
+                            // ersetzt beim Ändern, entfernt beim Erledigen/Löschen (CONCEPT Flow B)
+                            if entry.kind == .reminder, let due = entry.dueAt, due > .now {
+                                await UNReminderScheduler().schedule(entry, now: .now)
+                            } else {
+                                await UNReminderScheduler().cancel(id: entry.id)
+                            }
+                            dismiss()
+                        }
+                    }
                 }
             }
         }

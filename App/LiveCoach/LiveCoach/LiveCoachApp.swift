@@ -6,7 +6,7 @@ import LifeCoachCore
 struct LiveCoachApp: App {
     @State private var settings = AppSettings()
 
-    var sharedModelContainer: ModelContainer = {
+    static let sharedModelContainer: ModelContainer = {
         let schema = Schema([Entry.self])
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         do {
@@ -16,11 +16,21 @@ struct LiveCoachApp: App {
         }
     }()
 
+    init() {
+        UNUserNotificationCenter.current().setNotificationCategories([
+            UNNotificationCategory(identifier: "reminder", actions: [
+                UNNotificationAction(identifier: "markDone", title: "Erledigt"),
+                UNNotificationAction(identifier: "snooze1h", title: "In 1 Stunde"),
+            ], intentIdentifiers: []),
+        ])
+        UNUserNotificationCenter.current().delegate = NotificationDelegate.shared
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(sharedModelContainer)
+        .modelContainer(Self.sharedModelContainer)
         .environment(settings)
     }
 }
