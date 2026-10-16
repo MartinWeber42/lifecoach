@@ -210,7 +210,7 @@
 			mainGroup = E97F81DA3082207F00FB75F4;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				E9408D543082222200F1099F /* XCLocalSwiftPackageReference "../../../LifeCoach" */,
+				E9408D543082222200F1099F /* XCLocalSwiftPackageReference "../.." */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E97F81E43082207F00FB75F4 /* Products */;
@@ -589,16 +589,16 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		E9408D543082222200F1099F /* XCLocalSwiftPackageReference "../../../LifeCoach" */ = {
+		E9408D543082222200F1099F /* XCLocalSwiftPackageReference "../.." */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = ../../../LifeCoach;
+			relativePath = ../..;
 		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		E9408D56308222AB00F1099F /* LifeCoachCore */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = E9408D543082222200F1099F /* XCLocalSwiftPackageReference "../../../LifeCoach" */;
+			package = E9408D543082222200F1099F /* XCLocalSwiftPackageReference "../.." */;
 			productName = LifeCoachCore;
 		};
 /* End XCSwiftPackageProductDependency section */
