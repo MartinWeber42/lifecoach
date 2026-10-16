@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		E9408D57308222AB00F1099F /* LifeCoachCore in Frameworks */ = {isa = PBXBuildFile; productRef = E9408D56308222AB00F1099F /* LifeCoachCore */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		E97F81F33082208100FB75F4 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E9408D57308222AB00F1099F /* LifeCoachCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -72,12 +77,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E9408D55308222AB00F1099F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		E97F81DA3082207F00FB75F4 = {
 			isa = PBXGroup;
 			children = (
 				E97F81E53082207F00FB75F4 /* LiveCoach */,
 				E97F81F53082208100FB75F4 /* LiveCoachTests */,
 				E97F81FF3082208100FB75F4 /* LiveCoachUITests */,
+				E9408D55308222AB00F1099F /* Frameworks */,
 				E97F81E43082207F00FB75F4 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -112,6 +125,7 @@
 			);
 			name = LiveCoach;
 			packageProductDependencies = (
+				E9408D56308222AB00F1099F /* LifeCoachCore */,
 			);
 			productName = LiveCoach;
 			productReference = E97F81E33082207F00FB75F4 /* LiveCoach.app */;
@@ -195,6 +209,9 @@
 			);
 			mainGroup = E97F81DA3082207F00FB75F4;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				E9408D543082222200F1099F /* XCLocalSwiftPackageReference "../../../LifeCoach" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E97F81E43082207F00FB75F4 /* Products */;
 			projectDirPath = "";
@@ -570,6 +587,21 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		E9408D543082222200F1099F /* XCLocalSwiftPackageReference "../../../LifeCoach" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../../LifeCoach;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E9408D56308222AB00F1099F /* LifeCoachCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E9408D543082222200F1099F /* XCLocalSwiftPackageReference "../../../LifeCoach" */;
+			productName = LifeCoachCore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = E97F81DB3082207F00FB75F4 /* Project object */;
 }
