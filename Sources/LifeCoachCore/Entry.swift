@@ -5,6 +5,8 @@ import SwiftData
 /// `question` is never stored, so an Entry is only ever `.note` or `.reminder`.
 @Model
 public final class Entry {
+    /// Stable identifier (notification identifier; persistentModelID ist nicht laufstabil).
+    public var id: UUID = UUID()
     /// Original input, stored unchanged for retrieval and re-classification.
     public var rawText: String
     /// Core statement from the classification.
