@@ -1,0 +1,62 @@
+{
+  "now": "2026-10-16T14:30:00+02:00",
+  "timeZone": "Europe/Berlin",
+  "aliases": [
+    {"alias": "meine freundin", "person": "Lisa"},
+    {"alias": "schatz", "person": "Lisa"}
+  ],
+  "cases": [
+    {
+      "input": "lisa wünscht sich zu weihnachten eine keramikvase",
+      "people": ["Lisa"],
+      "eventDate": null
+    },
+    {
+      "input": "mama wünscht sich zum geburtstag einen kochkurs",
+      "people": ["Mama"],
+      "eventDate": null
+    },
+    {
+      "input": "gestern mit lisa im kino gewesen, war richtig schön",
+      "people": ["Lisa"],
+      "eventDate": "2026-10-15"
+    },
+    {
+      "input": "neuer kollege heißt paul, hat ne katze namens mieze",
+      "people": ["Paul"],
+      "eventDate": null
+    },
+    {
+      "input": "lisa will doch lieber ein buch",
+      "people": ["Lisa"],
+      "eventDate": null,
+      "replaces": "Keramikvase"
+    },
+    {
+      "input": "meine freundin liebt oliven",
+      "people": ["Lisa"],
+      "eventDate": null,
+      "aliasSuggestions": [{"alias": "meine freundin", "person": "Lisa"}]
+    },
+    {
+      "input": "schatz und ich gehen samstag wandern",
+      "people": ["Lisa"],
+      "eventDate": "2026-10-17"
+    },
+    {
+      "input": "gestern 5km gelaufen in 28 min",
+      "people": [],
+      "eventDate": "2026-10-15"
+    },
+    {
+      "input": "morgen 9 uhr zahnarzt mit anna",
+      "people": ["Anna"],
+      "eventDate": "2026-10-17"
+    },
+    {
+      "input": "tom trainiert jetzt dreimal pro wocche",
+      "people": ["Tom"],
+      "eventDate": null
+    }
+  ]
+}

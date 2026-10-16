@@ -61,13 +61,25 @@
   {
    "text": "fahrradschloss code 4711",
    "createdAt": "2026-04-18"
+  },
+  {
+   "text": "lisa wünscht sich doch ein buch statt der keramikvase",
+   "createdAt": "2026-10-12"
+  },
+  {
+   "text": "gestern 5km gelaufen in 28 min",
+   "createdAt": "2026-10-16"
+  },
+  {
+   "text": "heute nochmal joggen, nur 3 km",
+   "createdAt": "2026-10-16"
   }
  ],
  "cases": [
   {
    "question": "was wünscht sich lisa zu weihnachten?",
    "expected": [
-    "vase"
+    "buch"
    ]
   },
   {
@@ -147,6 +159,41 @@
   {
    "question": "wie ist annas handynummer",
    "expected": null
+  },
+  {
+   "question": "was wünscht sich meine freundin zu weihnachten",
+   "expected": [
+    "buch"
+   ]
+  },
+  {
+   "question": "wie weit bin ich gestern gelaufen",
+   "expected": [
+    "5"
+   ]
+  },
+  {
+   "question": "wie lang war meine letzte runde",
+   "expected": [
+    "3"
+   ]
+  },
+  {
+   "question": "was weiß ich alles über jonas",
+   "expected": [
+    "bello",
+    "50"
+   ]
+  },
+  {
+   "question": "welche schuhgröße hat mia",
+   "expected": null
+  }
+ ],
+ "aliases": [
+  {
+   "alias": "meine freundin",
+   "person": "Lisa"
   }
  ]
 }
