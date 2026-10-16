@@ -62,6 +62,7 @@ struct ContentView: View {
             }
             .onAppear {
                 proxy.scrollTo(entries.last?.persistentModelID, anchor: .bottom)
+                reprocessPending()
             }
         }
     }
@@ -129,6 +130,23 @@ struct ContentView: View {
             try? context.save()
         }
         pendingAliases.removeAll { $0 == suggestion }
+    }
+
+    /// Nachverarbeitung beim App-Start (MEMORY.md Verarbeitung): offline Gefallenes aus rawText neu.
+    private func reprocessPending() {
+        guard settings.classifier != nil || settings.extractor != nil else { return }
+        let pending = entries.filter { !$0.isPrivate && $0.processedVersion == nil }
+        guard !pending.isEmpty else { return }
+        let facts = (try? context.fetch(FetchDescriptor<Fact>())) ?? []
+        let people = (try? context.fetch(FetchDescriptor<Person>())) ?? []
+        let reprocessor = Reprocessor(classifier: settings.classifier, extractor: settings.extractor)
+        Task {
+            for entry in pending {
+                let suggestions = await reprocessor.reprocess(entry, facts: facts, people: people, in: context)
+                if !suggestions.isEmpty { pendingAliases.append(contentsOf: suggestions) }
+            }
+            try? context.save()
+        }
     }
 
     /// Abfrage (CONCEPT Flow C): private Treffer → Kandidaten → Antwort, blockiert nie.
