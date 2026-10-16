@@ -36,6 +36,7 @@ struct LiveCoachApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .tint(.orange)
         }
         .modelContainer(Self.sharedModelContainer)
         .environment(settings)

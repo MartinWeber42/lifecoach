@@ -64,6 +64,8 @@ struct ContentView: View {
                 }
             }
             .listStyle(.plain)
+            .listRowSpacing(4)
+            .defaultScrollAnchor(.bottom)
             .onChange(of: entries.count) {
                 withAnimation {
                     proxy.scrollTo(entries.last?.persistentModelID, anchor: .bottom)
@@ -78,26 +80,29 @@ struct ContentView: View {
     }
 
     private var inputBar: some View {
-        HStack(alignment: .bottom, spacing: 8) {
+        HStack(alignment: .bottom, spacing: 10) {
             TextField("Eingabe…", text: $inputText, axis: .vertical)
-                .textFieldStyle(.roundedBorder)
                 .lineLimit(1...5)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                 .onSubmit { submitCapture() }
 
             Button(action: submitCapture) {
                 if isBusy {
                     ProgressView()
-                        .frame(width: 32, height: 32)
+                        .frame(width: 36, height: 36)
                 } else {
                     Image(systemName: "arrow.up.circle.fill")
-                        .font(.system(size: 32))
-                        .foregroundStyle(inputText.trimmingCharacters(in: .whitespaces).isEmpty ? Color.secondary : Color.blue)
+                        .font(.system(size: 36))
+                        .foregroundStyle(inputText.trimmingCharacters(in: .whitespaces).isEmpty ? Color.secondary : Color.orange)
                 }
             }
             .disabled(inputText.trimmingCharacters(in: .whitespaces).isEmpty || isBusy)
         }
         .padding(.horizontal)
         .padding(.vertical, 8)
+        .background(.bar)
     }
 
     /// Extraktion im Hintergrund (MEMORY.md Verarbeitung): läuft nach der Klassifizierung, blockiert nie.
@@ -117,19 +122,25 @@ struct ContentView: View {
 
     /// Alias-Bestätigung (MEMORY.md, Schicht 3): ein Banner, kein eigener Screen.
     private var aliasBanner: some View {
-        let suggestion = pendingAliases[0]
-        return HStack(spacing: 10) {
+        HStack(spacing: 10) {
             Image(systemName: "person.crop.circle.badge.questionmark")
-            Text("Ist „\(suggestion.alias)“ = \(suggestion.person)?")
+                .foregroundStyle(.orange)
+            Text("Ist „\(pendingAliases[0].alias)“ = \(pendingAliases[0].person)?")
+                .font(.footnote)
             Spacer()
-            Button("Ja") { confirmAlias(suggestion) }
+            Button("Ja") { confirmAlias(pendingAliases[0]) }
                 .buttonStyle(.borderedProminent)
-            Button("Nein") { pendingAliases.removeAll { $0 == suggestion } }
+                .controlSize(.small)
+            Button("Nein") {
+                withAnimation { pendingAliases.removeAll { $0 == pendingAliases[0] } }
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
         }
-        .font(.footnote)
+        .padding(12)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
         .padding(.horizontal)
-        .padding(.vertical, 8)
-        .background(Color.yellow.opacity(0.15))
+        .padding(.top, 8)
     }
 
     private func confirmAlias(_ suggestion: Extraction.AliasSuggestion) {
@@ -144,17 +155,22 @@ struct ContentView: View {
 
     /// Leerer Zustand mit 2–3 Beispiel-Eingaben als Hilfe (ROADMAP M4).
     private var emptyState: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 16) {
             Text("Tipp einfach rein — ich sortiere.")
-                .font(.headline)
-            Label("„morgen 10 uhr mama anrufen“", systemImage: "clock")
-            Label("„lisa wünscht sich eine keramikvase“", systemImage: "note.text")
-            Label("„was wünscht sich meine freundin?“", systemImage: "questionmark.bubble")
+                .font(.title3.weight(.semibold))
+            VStack(alignment: .leading, spacing: 12) {
+                Label("„morgen 10 uhr mama anrufen“", systemImage: "clock")
+                Label("„lisa wünscht sich eine keramikvase“", systemImage: "note.text")
+                Label("„was wünscht sich meine freundin?“", systemImage: "questionmark.bubble")
+            }
+            .font(.subheadline)
+            Text("Notizen, Termine und Fragen bleiben auf dem Gerät.")
+                .font(.caption)
+                .foregroundStyle(.tertiary)
         }
-        .font(.subheadline)
         .foregroundStyle(.secondary)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
+        .padding(24)
     }
 
     /// JSON-Export (CONCEPT Datenschutz: „Handy weg = Gehirn weg“ — Share-Sheet).
@@ -208,26 +224,32 @@ struct ContentView: View {
 
     /// Antwort mit Quellen (CONCEPT Flow C): der Nutzer kann die Antwort selbst prüfen.
     private var queryBubble: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .top) {
                 Text(queryText ?? "")
                     .font(.body)
+                    .fixedSize(horizontal: false, vertical: true)
                 Spacer()
                 Button {
-                    queryText = nil
-                    querySources = []
+                    withAnimation { queryText = nil; querySources = [] }
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.tertiary)
+                }
+                .buttonStyle(.plain)
+            }
+            if !querySources.isEmpty {
+                Divider()
+                ForEach(querySources) { entry in
+                    EntryRow(entry: entry)
+                        .onTapGesture { editingEntry = entry }
                 }
             }
-            ForEach(querySources) { entry in
-                EntryRow(entry: entry)
-                    .onTapGesture { editingEntry = entry }
-            }
         }
-        .padding()
-        .background(Color.blue.opacity(0.08))
+        .padding(14)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .padding(.horizontal)
+        .padding(.top, 8)
     }
 
     private func submitCapture() {

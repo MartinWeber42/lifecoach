@@ -4,22 +4,31 @@ import LifeCoachCore
 struct EntryRow: View {
     let entry: Entry
 
-    var body: some View {
-        HStack(alignment: .top, spacing: 10) {
-            Image(systemName: entry.kind == .reminder ? "clock" : "note.text")
-                .foregroundStyle(entry.kind == .reminder ? Color.orange : Color.blue)
-                .frame(width: 20)
-                .padding(.top, 2)
+    private var isReminder: Bool { entry.kind == .reminder }
 
-            VStack(alignment: .leading, spacing: 3) {
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: isReminder ? "clock" : "note.text")
+                .foregroundStyle(isReminder ? Color.orange : Color.secondary)
+                .frame(width: 22)
+                .padding(.top, 3)
+
+            VStack(alignment: .leading, spacing: 4) {
                 Text(entry.text.isEmpty ? entry.rawText : entry.text)
                     .font(.body)
+                    .strikethrough(entry.doneAt != nil)
+                    .foregroundStyle(entry.doneAt != nil ? Color.secondary : Color.primary)
 
                 HStack(spacing: 8) {
                     if let due = entry.dueAt {
                         Label(due.formatted(date: .abbreviated, time: .shortened), systemImage: "calendar")
                             .font(.caption)
                             .foregroundStyle(.orange)
+                    }
+                    if entry.isPrivate {
+                        Label("privat", systemImage: "lock.fill")
+                            .font(.caption)
+                            .foregroundStyle(.tertiary)
                     }
                     Text(entry.createdAt, style: .time)
                         .font(.caption2)
@@ -34,7 +43,7 @@ struct EntryRow: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, 6)
     }
 }
 
@@ -126,4 +135,9 @@ struct SettingsView: View {
             }
         }
     }
+}
+
+#Preview {
+    EntryRow(entry: Entry(rawText: "morgen 10 uhr mama anrufen", text: "Mama anrufen", kind: .reminder,
+                          dueAt: Date.now.addingTimeInterval(3600)))
 }
