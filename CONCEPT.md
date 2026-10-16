@@ -8,24 +8,97 @@ Ein mobiles Gehirn. Alles, was am Tag erlebt und gestaltet wird — Gedanken, Te
 
 > Meine Freundin sagt mir an einem Tag, was sie sich zu Weihnachten wünscht. Ich tippe es in die App. Sie notiert es. Wochen später frage ich: „Was wünscht sich meine Freundin zu Weihnachten?" — und die App antwortet: „Eine Keramikvase."
 
+**Was die Story eigentlich beweist:** Der Wert liegt im *Wiederfinden* (Abfragen), nicht im Sortieren. Sortieren ist Mittel zum Zweck. Die Roadmap priorisiert deshalb den Abfrage-Pfad früh (siehe `ROADMAP.md`).
+
+## Zielgruppe & Abgrenzung
+
+- **Nutzer:** eine Person, ein iPhone. Kein Teilen, keine Accounts, kein Multi-Device.
+- **Kein Ersatz für** Kalender, Erinnerungen-App oder Notizen-App — LifeCoach ist der *Eingang* („einfach reintippen, nicht einsortieren") und das *Gedächtnis* („frag mich später").
+- **Erfolgskriterium:** Der Nutzer tippt Dinge lieber in LifeCoach als in Apple Notizen, weil er sie dort wiederfindet, ohne sich zu erinnern, *wo* er sie abgelegt hat.
+
+## Domänen-Sprache
+
+Testnamen und Identifier orientieren sich an diesen Begriffen.
+
+| Begriff (DE / Code) | Bedeutung |
+|---|---|
+| Eingabe / `Capture` | Rohtext, den der Nutzer eintippt. Wird nicht verändert gespeichert (`rawText`). |
+| Klassifizierung / `Classification` | Ergebnis des LLM nach Schema: `kind`, `text`, `due`. |
+| Notiz / `note` | Etwas Merkenswertes ohne Zeitpunkt („Lisa wünscht sich eine Keramikvase"). |
+| Erinnerung / `reminder` | Etwas mit Zeitpunkt, an das die App aktiv erinnern soll. |
+| Frage / `question` | Anfrage an das Gedächtnis. Wird beantwortet, **nicht** als Eintrag gespeichert. |
+| Eintrag / `Entry` | Gespeicherte Notiz oder Erinnerung (persistiert). |
+| Antwort / `Answer` | Text + Liste der Quell-Einträge, auf die sie sich stützt. |
+| Fälligkeit / `dueAt` | Zeitpunkt einer Erinnerung, vom Nutzer bestätigt. |
+| Erledigt / `doneAt` | Nutzer hat die Erinnerung abgehakt. |
+
 ## Kernfunktionen
 
-1. **Aufnehmen** — Text rein (später: Voice), App sortiert automatisch
-2. **Sortieren** — on-device LLM klassifiziert: Notiz, Erinnerung/Termin, oder Frage
-3. **Erinnern** — fällige Erinnerungen als lokale iOS-Notification (funktioniert bei geschlossener App, ohne Server)
-4. **Abfragen** — Fragen über gespeicherte Notizen, beantwortet aus dem eigenen Gehirn
+1. **Aufnehmen** — ein Textfeld, kein Formular. App sortiert automatisch (später: Voice).
+2. **Sortieren** — on-device LLM klassifiziert nach Schema. Ergebnis ist sichtbar und **korrigierbar** (Typ ändern, Zeitpunkt ändern).
+3. **Erinnern** — beim Speichern einer Erinnerung wird eine lokale Notification geplant. Kein Polling, kein Server.
+4. **Abfragen** — Fragen werden aus den eigenen Einträgen beantwortet, **mit Quellenangabe**. Findet die App nichts, sagt sie das — sie erfindet nichts.
+
+## Kern-Flows
+
+### Flow A — Aufnehmen
+
+```
+Eingabe → Klassifizierung (LLM) → Vorschau-Zeile → Speichern
+                                       │
+                                       └─ Nutzer kann Typ/Zeitpunkt korrigieren
+```
+
+- Klassifizierung läuft beim Absenden, Ergebnis erscheint als Zeile mit Typ-Icon und ggf. Zeitpunkt.
+- **Reminder ohne ableitbaren Zeitpunkt** (`due = null`): App fragt nach („Wann soll ich dich erinnern?") — DatePicker, kein zweiter LLM-Call.
+- **Speichern ist nie blockiert:** Fällt das LLM aus oder dauert > 3 s, wird als `note` gespeichert und kann nachträglich umklassifiziert werden.
+
+### Flow B — Erinnern
+
+- Speichern einer Erinnerung mit `dueAt` in der Zukunft → `UNCalendarNotificationTrigger` wird geplant (Identifier = Entry-ID).
+- Ändern/Löschen eines Eintrags → Notification wird ersetzt/entfernt.
+- Notification-Aktionen: „Erledigt", „In 1 Stunde". 
+- **iOS-Limit:** max. 64 ausstehende lokale Notifications pro App. MVP plant die nächsten 64 Fälligkeiten; beim App-Start und nach jeder Änderung wird neu geplant.
+
+### Flow C — Abfragen
+
+```
+Frage → Retrieval (Kandidaten-Einträge finden) → LLM antwortet nur aus Kandidaten → Antwort + Quellen
+```
+
+- Das LLM bekommt **nicht** alle Einträge, sondern nur die relevantesten (siehe *Retrieval*).
+- Prompt-Regel: „Antworte ausschließlich aus den folgenden Einträgen. Wenn sie die Antwort nicht enthalten, antworte: ‚Dazu habe ich nichts gespeichert.'"
+- Die UI zeigt unter der Antwort die Quell-Einträge mit Datum — der Nutzer kann die Antwort selbst prüfen.
 
 ## Architektur
 
-- **Native iOS-App** (SwiftUI)
-- **LLM on-device:** Apple Foundation Models (iOS 26+, gratis, kein Model-Download) — Fallback für ältere Geräte: MLX-Swift oder llama.cpp mit quantisiertem 3B-Modell (Gemma 3n, Llama 3.2 3B; laut Recherche reichen 3B für Klassifizierungs-Aufgaben, 7–8B brauchen 12+ GB RAM)
-- **Speicher:** SwiftData
-- **Erinnerungen:** UNUserNotificationCenter — kein laufender Server nötig
-- **Kein Cloud-Inference.** DSGVO by design.
+- **Native iOS-App** (SwiftUI), Mindestversion **iOS 26**.
+- **LLM on-device:** Apple Foundation Models Framework (Systemmodell, kein Download, gratis).
+  - Strukturierte Ausgabe über **Guided Generation** (`@Generable`) statt freiem JSON-Parsing. Das Schema (`kind`/`text`/`due`) bleibt identisch, nur der Transport wird robuster.
+  - **Kein** Private-Cloud-Compute-Modell (Regel 3: kein Cloud-Inference).
+- **Speicher:** SwiftData.
+- **Erinnerungen:** `UNUserNotificationCenter`.
+- **Retrieval:** zunächst lexikalisch (Stichwort-/Token-Overlap über `rawText` + `text`), Embeddings (`NLEmbedding`) erst wenn die Eval-Suite zeigt, dass es nötig ist.
+- **Datums-Logik:** LLM liefert `due`; die App validiert (parsebar, nicht in der Vergangenheit) und zeigt es zur Bestätigung. Relative Ausdrücke („übermorgen", „nächsten Dienstag") werden in der Eval-Suite explizit gemessen.
 
-## Warum kein Telegram-Bot (verworfen)
+### Modul-Schnitt (minimal)
 
-Ein Bot läuft serverseitig: Nachrichten gehen an einen Rechner, der an sein muss; Erinnerungen kommen nur dann. On-device-KI auf dem Smartphone geht nur in nativen Apps. Datenschutz: Notizen gehen bei Telegram eh über Telegram-Server — der LLM-Schritt war nie der Engpass. Der Bot wurde als Tracer Bullet gebaut und verworfen; seine bewiesene Kernlogik (unten) wird 1:1 portiert.
+```
+LifeCoachApp (SwiftUI Views)
+ ├─ Classifier        protocol  → FoundationModelClassifier | FakeClassifier (Tests)
+ ├─ Answerer          protocol  → FoundationModelAnswerer   | FakeAnswerer   (Tests)
+ ├─ Retriever         struct    → Kandidaten zu einer Frage aus [Entry]
+ ├─ ReminderScheduler protocol  → UNReminderScheduler        | FakeScheduler  (Tests)
+ └─ Entry             @Model    (SwiftData)
+```
+
+Protokolle nur dort, wo ein System-Seiteneffekt (LLM, Notifications) im Test ersetzt werden muss — sonst keine Abstraktion.
+
+### Harte Grenzen des On-Device-Modells
+
+- **Kontextfenster: 4096 Tokens, geteilt zwischen Eingabe und Ausgabe.** „Alle Notizen ins Prompt" funktioniert nur für wenige hundert kurze Einträge. Deshalb ist Retrieval Pflicht, nicht Optimierung.
+- **Verfügbarkeit:** Nur auf Apple-Intelligence-fähigen Geräten mit aktivierter Apple Intelligence. Die App prüft `SystemLanguageModel.default.availability` und fällt sonst in den **manuellen Modus** (Nutzer wählt Typ selbst, Abfrage = Volltextsuche).
+- **Modellgröße ~3B:** stark bei Klassifizierung, schwach bei Datumsrechnung und Weltwissen — darum Datum bestätigen lassen und Antworten an Quellen binden.
 
 ## Bewiesene Kernlogik: Klassifizierungs-Schema
 
@@ -40,28 +113,61 @@ Regeln:
 - `question`: Nutzer fragt etwas über gespeicherte Notizen → `text` = bereinigte Frage
 - `note`: alles andere → `due` = null
 
+**Einschränkung:** „Bewiesen" heißt: mit dem Modell des Bot-Prototyps und 8 Beispielen. Für Apple Foundation Models auf Deutsch ist das Schema **nicht** bewiesen — das wird in M0 mit einer Eval-Suite (≥ 60 Beispiele) gemessen. Das Schema selbst bleibt unverändert (Regel 5).
+
+**Ergänzungen der Regeln (Klarstellung, kein Schema-Change):**
+- `due` ohne Uhrzeit („am Freitag") → 09:00 Ortszeit.
+- Zeitzone: immer die aktuelle Gerätezeitzone; das Prompt enthält Datum, Wochentag und Uhrzeit.
+
 ## Datenmodell
 
 ```
-Note
-  id: Int
-  text: String          // Kernaussage
-  kind: note | reminder | question
-  dueAt: Date?          // nur bei reminder
+Entry (@Model)
+  rawText: String       // Originaleingabe, unverändert
+  text: String          // Kernaussage aus der Klassifizierung
+  kind: note | reminder // question wird nicht persistiert
+  dueAt: Date?          // nur bei reminder, vom Nutzer bestätigt
   createdAt: Date
-  sentAt: Date?         // Notification bereits gefeuert
+  doneAt: Date?         // Erinnerung abgehakt
 ```
 
-## Meilensteine
+Änderungen gegenüber dem Bot-Datenmodell und warum:
 
-1. **M1 — Grundgerüst:** Xcode-Projekt, SwiftData-Modell, Text-Eingabe, Notizen speichern/listen
-2. **M2 — Sortierung:** on-device Klassifizierung nach Schema (note/reminder/question)
-3. **M3 — Erinnerungen:** Datumsextraktion, Notifications für fällige Erinnerungen
-4. **M4 — Fragen:** Antworten aus gespeicherten Notizen
-5. **M5 — optional:** Voice-Input, Siri, Widgets
+| Bot | iOS | Grund |
+|---|---|---|
+| `id: Int` | entfällt | SwiftData liefert `persistentModelID`; Notification-ID wird daraus abgeleitet. |
+| `kind` inkl. `question` | nur `note`/`reminder` | Fragen sind keine Erinnerungen ans Gehirn — gespeichert würden sie das Retrieval verschmutzen. |
+| `sentAt` | ersetzt durch `doneAt` | Der Bot musste per Polling wissen, was schon verschickt wurde. iOS plant Notifications vorab; relevant ist nur, ob der Nutzer erledigt hat. |
+| — | `rawText` neu | Kernaussage ist verlustbehaftet; Retrieval und Neu-Klassifizierung brauchen das Original. |
+
+## Datenschutz & Datensicherheit
+
+- Keine Netzwerk-Requests aus der App (im Code prüfbar: kein `URLSession`).
+- Kein Analytics, kein Crash-Reporting außer dem, was Apple über TestFlight liefert (Opt-in des Nutzers).
+- **Spannungsfeld Datenverlust:** „Nichts verlässt das Handy" heißt auch: Handy weg = Gehirn weg. MVP-Entscheidung: App-Daten sind Teil des normalen iOS-Geräte-Backups (Default, vom Nutzer kontrolliert, mit Advanced Data Protection Ende-zu-Ende-verschlüsselt). Zusätzlich manueller **JSON-Export** über das Share-Sheet. Kein eigener Sync.
+- Dateischutz: `NSFileProtectionComplete` für den SwiftData-Store.
+
+## Teststrategie
+
+Zwei Ebenen, weil LLM-Ausgaben nicht deterministisch sind:
+
+1. **Unit-Tests (Swift Testing, deterministisch, laufen immer):** Domänenlogik mit Fakes — Speichern, Umklassifizieren, Notification-Planung, Retriever-Ranking, Datumsvalidierung, Antwort-ohne-Treffer.
+2. **Eval-Suite (gegen das echte Modell, auf Mac/Gerät mit Apple Intelligence):** Tabelle aus Eingabe → erwartetes `kind`/`due`, bzw. Frage + Einträge → erwartete Antwort. Ergebnis ist eine Quote, kein Grün/Rot pro Fall. Schwellen siehe Roadmap.
+
+Testnamen in Domänensprache, z. B. `reminderWithoutTimeAsksForDueDate`, `questionIsNotPersisted`, `answerCitesSourceEntries`.
+
+## Bewusst nicht im MVP
+
+Voice-Input, Siri/App Intents, Widgets, wiederkehrende Erinnerungen („jeden Montag"), Tags/Ordner, Sync zwischen Geräten, Fallback-LLM (MLX/llama.cpp), Embeddings, Bearbeitung durch das LLM („ändere die Vase auf Blumen"). Begründung jeweils: YAGNI, bis Nutzung zeigt, dass es fehlt.
+
+## Entscheidungen (getroffen)
+
+- **iOS 26 als Minimum, kein MLX/llama.cpp-Fallback im MVP.** Ein Fallback bedeutet Modell-Download (~2 GB), eigenen Inferenz-Stack und doppelte Eval-Arbeit — für einen einzelnen Nutzer mit Apple-Intelligence-Gerät reiner Overhead. Ohne Apple Intelligence läuft die App im manuellen Modus.
+- **Retrieval vor Embeddings:** lexikalisch starten, messen, erst dann Embeddings.
 
 ## Offene Fragen
 
-- Minimum iOS-Version: iOS 26 (Foundation Models direkt) vs. iOS 17 + llama.cpp-Fallback?
-- Wie gut klassifiziert das Foundation Model deutsches, umgangssprachliches Input? (im M2 messen)
-- Lokale Suche über Notizen: mitwachsende Notizenmenge → einfache Inklusion ins Prompt vs. Embeddings?
+- Erreicht das Foundation Model auf deutschem, umgangssprachlichem Input die Eval-Schwellen? (M0)
+- Rechnet das Modell relative Datumsangaben zuverlässig, oder braucht es eine deterministische Vorstufe (`NSDataDetector`)? (M0)
+- Ab wie vielen Einträgen versagt lexikalisches Retrieval bei realen Fragen? (nach 4 Wochen Nutzung messen)
+- Sollen erledigte Erinnerungen beim Abfragen mitgezählt werden? („Wann war ich beim Zahnarzt?" → ja, vermutlich)
