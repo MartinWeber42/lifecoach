@@ -88,9 +88,9 @@ struct EntryDetailView: View {
                         Task {
                             // ersetzt beim Ändern, entfernt beim Erledigen/Löschen (CONCEPT Flow B)
                             if entry.kind == .reminder, let due = entry.dueAt, due > .now {
-                                await UNReminderScheduler().schedule(entry, now: .now)
+                                await EventKitReminderScheduler().schedule(entry, now: .now)
                             } else {
-                                await UNReminderScheduler().cancel(id: entry.id)
+                                await EventKitReminderScheduler().cancel(entry)
                             }
                             dismiss()
                         }
