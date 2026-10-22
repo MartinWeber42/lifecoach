@@ -18,7 +18,7 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                if let queryText { queryBubble }
+                if queryText != nil { queryBubble }
                 if !pendingAliases.isEmpty { aliasBanner }
                 if entries.isEmpty { emptyState } else { entryList }
                 Divider()
@@ -49,17 +49,23 @@ struct ContentView: View {
     private var entryList: some View {
         ScrollViewReader { proxy in
             List {
-                ForEach(entries) { entry in
-                    EntryRow(entry: entry)
-                        .id(entry.persistentModelID)
-                        .onTapGesture { editingEntry = entry }
-                        .listRowSeparator(.hidden)
+                let overview = ReminderPlanning.overview(entries, now: .now)
+                if !overview.reminders.isEmpty {
+                    Section("Erinnerungen") {
+                        ForEach(overview.reminders) { entry in
+                            entryRow(entry)
+                        }
+                        .onDelete { indices in
+                            delete(indices: indices, in: overview.reminders)
+                        }
+                    }
                 }
-                .onDelete { indices in
-                    for i in indices {
-                        let id = entries[i].id
-                        context.delete(entries[i])
-                        Task { await UNReminderScheduler().cancel(id: id) }
+                Section("Notizen") {
+                    ForEach(overview.notes) { entry in
+                        entryRow(entry)
+                    }
+                    .onDelete { indices in
+                        delete(indices: indices, in: overview.notes)
                     }
                 }
             }
@@ -74,7 +80,7 @@ struct ContentView: View {
             .onAppear {
                 proxy.scrollTo(entries.last?.persistentModelID, anchor: .bottom)
                 reprocessPending()
-                Task { await UNReminderScheduler().rescheduleAll(entries, now: .now) }
+                Task { await EventKitReminderScheduler().rescheduleAll(entries, now: .now) }
             }
         }
     }
@@ -197,6 +203,21 @@ struct ContentView: View {
         }
     }
 
+    private func entryRow(_ entry: Entry) -> some View {
+        EntryRow(entry: entry)
+            .id(entry.persistentModelID)
+            .onTapGesture { editingEntry = entry }
+            .listRowSeparator(.hidden)
+    }
+
+    private func delete(indices: IndexSet, in section: [Entry]) {
+        for i in indices {
+            let entry = section[i]
+            context.delete(entry)
+            Task { await EventKitReminderScheduler().cancel(entry) }
+        }
+    }
+
     /// Abfrage (CONCEPT Flow C): private Treffer → Kandidaten → Antwort, blockiert nie.
     private func runQuery(_ question: String) {
         let query = QueryService(answerer: settings.answerer)
@@ -265,7 +286,7 @@ struct ContentView: View {
             switch outcome {
             case .entry(let entry):
                 ctx.insert(entry)
-                await UNReminderScheduler().schedule(entry, now: .now)
+                await EventKitReminderScheduler().schedule(entry, now: .now)
                 processExtraction(for: entry, input: text)
             case .question(let q):
                 runQuery(q)

@@ -23,16 +23,6 @@ struct LiveCoachApp: App {
         }
     }()
 
-    init() {
-        UNUserNotificationCenter.current().setNotificationCategories([
-            UNNotificationCategory(identifier: "reminder", actions: [
-                UNNotificationAction(identifier: "markDone", title: "Erledigt"),
-                UNNotificationAction(identifier: "snooze1h", title: "In 1 Stunde"),
-            ], intentIdentifiers: []),
-        ])
-        UNUserNotificationCenter.current().delegate = NotificationDelegate.shared
-    }
-
     var body: some Scene {
         WindowGroup {
             ContentView()
