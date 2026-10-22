@@ -23,6 +23,8 @@ public final class Entry {
     public var processedVersion: Int?
     /// Geheimnis-Filter (MEMORY.md, Vorstufe): nie an ein Modell, Wiederfinden nur per Stichwort über `rawText`.
     public var isPrivate: Bool = false
+    /// EKReminder-Mapping (Erinnerungen-App): calendarItemExternalIdentifier, stabil über App-Läufe.
+    public var reminderExternalID: String?
     /// Schicht 2 (MEMORY.md): abgeleitete Fakten, cascade delete mit dem Entry.
     @Relationship(deleteRule: .cascade, inverse: \Fact.entry)
     public var facts: [Fact] = []

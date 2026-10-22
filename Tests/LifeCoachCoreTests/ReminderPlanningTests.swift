@@ -45,4 +45,27 @@ struct ReminderPlanningTests {
         #expect(planned.count == 64)
         #expect(planned.first?.dueAt == now.addingTimeInterval(3600))
     }
+
+    /// Übersicht: fällige Erinnerungen oben, überfällige zuerst — "16 uhr rucola" steht weit oben.
+    @Test func overviewGroupsRemindersFirst() {
+        let rucola = Entry(rawText: "16 uhr rucola", kind: .reminder, dueAt: now.addingTimeInterval(5400), createdAt: now)
+        let schinken = Entry(rawText: "schinken kaufen", kind: .note, createdAt: now.addingTimeInterval(-600))
+        let overdue = Entry(rawText: "wäsche aufhängen", kind: .reminder, dueAt: now.addingTimeInterval(-3600), createdAt: now.addingTimeInterval(-7200))
+        let done = Entry(rawText: "mama anrufen", kind: .reminder, dueAt: now.addingTimeInterval(3600), createdAt: now.addingTimeInterval(-300), doneAt: now)
+
+        let overview = ReminderPlanning.overview([rucola, schinken, done, overdue], now: now)
+
+        #expect(overview.reminders.map(\.rawText) == ["wäsche aufhängen", "16 uhr rucola"]) // überfällig zuerst
+        #expect(overview.notes.map(\.rawText) == ["schinken kaufen", "mama anrufen"]) // neueste unten
+    }
+
+    /// Erledigte Erinnerungen wandern in den Rest, stehen nicht mehr oben.
+    @Test func overviewHidesDoneRemindersFromTop() {
+        let done = Entry(rawText: "mama anrufen", kind: .reminder, dueAt: now.addingTimeInterval(3600), doneAt: now)
+
+        let overview = ReminderPlanning.overview([done], now: now)
+
+        #expect(overview.reminders.isEmpty)
+        #expect(overview.notes.map(\.rawText) == ["mama anrufen"])
+    }
 }
